@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Search, Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Trash2 } from 'lucide-react';
+import {styles} from '../styles/upp-style'
 
 // Sample data based on Java class
 const initialMaterias = [
@@ -32,18 +33,13 @@ const initialMaterias = [
     contenidos: 'Mecánica cuántica, Dualidad onda-partícula',
     creditosQueOtorga: 10, 
     creditosNecesarios: 24, 
-    tipo: 'ELECTIVA',
-    correlativas: ['FIS201', 'MAT201'],
+    tipo: 'OPTATIVA',
+    correlativas: ['FIS201', 'MAT201', 'MAt10101'],
     estado: 'Inactivo' 
   },
 ];
 
-// Available options for filters
-const tipoOptions = ["Todos los tipos", "OBLIGATORIA", "ELECTIVA", "OPTATIVA"];
-const creditosOtorgaOptions = ["Todos", "4", "6", "8", "10", "12"];
-const creditosNecesariosOptions = ["Todos", "0", "12", "24", "36", "48"];
-const estadoOptions = ["Todos", "Activo", "Inactivo"];
-const yearOptions = ["Todos", "2020", "2021", "2022", "2023", "2024"];
+const tipoOptions = ["Todos los tipos", "OBLIGATORIA", "OPTATIVA"];
 
 export default function MateriasPage() {
   const [materias, setMaterias] = useState(initialMaterias);
@@ -53,7 +49,6 @@ export default function MateriasPage() {
     creditosOtorga: "Todos",
     creditosNecesarios: "Todos",
     estado: "Todos",
-    correlativas: "Todos",
   });
   const [currentPage, setCurrentPage] = useState(1);
   const materiasPerPage = 5;
@@ -77,27 +72,16 @@ export default function MateriasPage() {
       searchTerm === '' || 
       materia.codigoDeMateria.toLowerCase().includes(searchTerm.toLowerCase()) || 
       materia.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      materia.contenidos.toLowerCase().includes(searchTerm.toLowerCase());
+      materia.contenidos.toLowerCase().includes(searchTerm.toLowerCase())||
+      materia.correlativas.some(correlativa => correlativa.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesTipo = 
       filters.tipo === "Todos los tipos" || 
       materia.tipo === filters.tipo;
     
-    const matchesCreditosOtorga = 
-      filters.creditosOtorga === "Todos" || 
-      materia.creditosQueOtorga.toString() === filters.creditosOtorga;
-      
-    const matchesCreditosNecesarios = 
-      filters.creditosNecesarios === "Todos" || 
-      materia.creditosNecesarios.toString() === filters.creditosNecesarios;
     
-    const matchesEstado = 
-      filters.estado === "Todos" || 
-      materia.estado === filters.estado;
     
-    // In a real application, you would have more filter logic here
-    
-    return matchesSearch && matchesTipo && matchesCreditosOtorga && matchesCreditosNecesarios && matchesEstado;
+    return matchesSearch && matchesTipo;
   });
 
   // Pagination
@@ -113,53 +97,20 @@ export default function MateriasPage() {
       creditosOtorga: "Todos",
       creditosNecesarios: "Todos",
       estado: "Todos",
-      correlativas: "Todos",
     });
     setSearchTerm('');
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center mb-4">
-        <button className="flex items-center text-gray-600 mr-4">
-          <ChevronLeft size={20} />
-          <span className="ml-1">Sistema de Gestión de Materias</span>
-        </button>
-        <div className="flex-grow"></div>
-        <button className="bg-gray-200 px-3 py-1 rounded mr-2">Preview</button>
-        <button className="bg-gray-200 px-3 py-1 rounded mr-2">Code</button>
-        <button className="text-gray-600">✕</button>
-      </div>
+    <div style={styles.container}>
+      <h1 style={styles.heading}>Gestión de Materias</h1>
 
-      <h1 className="text-2xl font-bold mb-4">Gestión de Materias</h1>
-      
-      {/* Search bar and New Materia button */}
-      <div className="flex justify-between mb-6">
-        <div className="flex">
-          <input
-            type="text"
-            placeholder="Buscar por código, nombre o contenidos"
-            className="border rounded p-2 w-64"
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-          <button className="bg-blue-500 text-white px-4 py-2 rounded ml-2">
-            Buscar
-          </button>
-        </div>
-        <button className="bg-green-500 text-white px-4 py-2 rounded">
-          Nueva Materia
-        </button>
-      </div>
-
-      {/* Filters in a container */}
-      <div className="mb-6 border rounded-lg p-4 bg-gray-50">
-        <h2 className="text-lg font-medium mb-2">Filtros</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-3">
-          <div>
-            <label className="block mb-1 text-sm font-medium">Tipo de Materia</label>
+      <div style={styles.filtersContainer}>
+        <div style={styles.filtersGrid}>
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Tipo de Materia</label>
             <select
-              className="border rounded p-2 w-full text-sm"
+              style={styles.select}
               value={filters.tipo}
               onChange={(e) => handleFilterChange('tipo', e.target.value)}
             >
@@ -169,125 +120,77 @@ export default function MateriasPage() {
             </select>
           </div>
           
-          <div>
-            <label className="block mb-1 text-sm font-medium">Créditos que Otorga</label>
-            <select
-              className="border rounded p-2 w-full text-sm"
-              value={filters.creditosOtorga}
-              onChange={(e) => handleFilterChange('creditosOtorga', e.target.value)}
-            >
-              {creditosOtorgaOptions.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
+          <div style={styles.formGroup}>
+          <label style={styles.label}>Buscar</label>
+          <input
+            type="text"
+            placeholder="código, nombre o contenidos"
+            style={styles.searchInput}
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
           </div>
-          
-          <div>
-            <label className="block mb-1 text-sm font-medium">Créditos Necesarios</label>
-            <select
-              className="border rounded p-2 w-full text-sm"
-              value={filters.creditosNecesarios}
-              onChange={(e) => handleFilterChange('creditosNecesarios', e.target.value)}
-            >
-              {creditosNecesariosOptions.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
+
+          <div style={styles.buttonGroup}>
+          <button style={styles.newButton}>
+            Nueva Materia
+          </button>
           </div>
-          
-          <div>
-            <label className="block mb-1 text-sm font-medium">Estado</label>
-            <select
-              className="border rounded p-2 w-full text-sm"
-              value={filters.estado}
-              onChange={(e) => handleFilterChange('estado', e.target.value)}
-            >
-              {estadoOptions.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="flex items-end">
-            <button
-              className="bg-blue-500 text-white px-4 py-2 rounded mr-2 text-sm"
-              onClick={() => {/* Apply filters logic */}}
-            >
-              Aplicar Filtros
-            </button>
-            <button
-              className="bg-gray-200 px-4 py-2 rounded text-sm"
-              onClick={resetFilters}
-            >
-              Limpiar
-            </button>
-          </div>
+        
         </div>
       </div>
 
-      {/* Students Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border-collapse">
-          <thead>
-            <tr className="border-b">
-              <th className="py-2 px-4 text-left">Código</th>
-              <th className="py-2 px-4 text-left">Nombre</th>
-              <th className="py-2 px-4 text-left">Contenidos</th>
-              <th className="py-2 px-4 text-left">Créditos Otorga</th>
-              <th className="py-2 px-4 text-left">Créditos Necesarios</th>
-              <th className="py-2 px-4 text-left">Tipo</th>
-              <th className="py-2 px-4 text-left">Correlativas</th>
-              <th className="py-2 px-4 text-left">Estado</th>
-              <th className="py-2 px-4 text-left">Acciones</th>
+      {/* Materias Table */}
+      <div style={styles.tableContainer}>
+        <table style={styles.table}>
+          <thead style={styles.tableHead}>
+            <tr>
+              <th style={styles.tableHeadCell}>Código</th>
+              <th style={styles.tableHeadCell}>Nombre</th>
+              <th style={styles.tableHeadCell}>Contenidos</th>
+              <th style={styles.tableHeadCell}>Créditos Otorga</th>
+              <th style={styles.tableHeadCell}>Créditos Necesarios</th>
+              <th style={styles.tableHeadCell}>Tipo</th>
+              <th style={styles.tableHeadCell}>Correlativas</th>
+              <th style={styles.tableHeadCell}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {currentMaterias.map(materia => (
-              <tr key={materia.id} className="border-b hover:bg-gray-50">
-                <td className="py-2 px-4">{materia.codigoDeMateria}</td>
-                <td className="py-2 px-4">{materia.nombre}</td>
-                <td className="py-2 px-4">
-                  <div className="truncate w-32" title={materia.contenidos}>
+              <tr key={materia.id} style={styles.tableRow}>
+                <td style={styles.tableCell}>{materia.codigoDeMateria}</td>
+                <td style={styles.tableCell}>{materia.nombre}</td>
+                <td style={styles.tableCell}>
+                  <div style={styles.truncateText} title={materia.contenidos}>
                     {materia.contenidos}
                   </div>
                 </td>
-                <td className="py-2 px-4">{materia.creditosQueOtorga}</td>
-                <td className="py-2 px-4">{materia.creditosNecesarios}</td>
-                <td className="py-2 px-4">
-                  <span className={`px-2 py-1 rounded ${
-                    materia.tipo === 'OBLIGATORIA' ? 'bg-blue-100 text-blue-800' : 
-                    materia.tipo === 'ELECTIVA' ? 'bg-purple-100 text-purple-800' : 
-                    'bg-orange-100 text-orange-800'
-                  }`}>
+                <td style={styles.tableCell}>{materia.creditosQueOtorga}</td>
+                <td style={styles.tableCell}>{materia.creditosNecesarios}</td>
+                <td style={styles.tableCell}>
+                  <span style={
+                    materia.tipo === 'OBLIGATORIA' ? styles.badgeObligatoria : 
+                    materia.tipo === 'OPTATIVA' ? styles.badgeOptativa : 
+                    styles.badgeOptativa
+                  }>
                     {materia.tipo}
                   </span>
                 </td>
-                <td className="py-2 px-4">
+                <td style={styles.tableCell}>
                   <div>
                     {materia.correlativas.map((correlativa, index) => (
-                      <div key={index} className="bg-gray-100 text-gray-800 px-2 py-1 rounded mb-1 inline-block mr-1">
+                      <div key={index} style={styles.correlativaChip}>
                         {correlativa}
                       </div>
                     ))}
-                    {materia.correlativas.length > 1 && (
-                      <div className="text-blue-500 font-medium">+{materia.correlativas.length - 1}</div>
-                    )}
                   </div>
                 </td>
-                <td className="py-2 px-4">
-                  <span className={`px-2 py-1 rounded ${
-                    materia.estado === 'Activo' ? 'bg-green-100 text-green-800' : 
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {materia.estado}
-                  </span>
-                </td>
-                <td className="py-2 px-4">
-                  <div className="flex space-x-2">
-                    <button className="text-yellow-500 hover:text-yellow-700">
+                <td style={styles.tableCell}>
+                  <div style={styles.actionButtonsContainer}>
+                    <button style={styles.editButton}>
                       <Edit size={18} />
                     </button>
-                    <button className="text-red-500 hover:text-red-700">
+                    <button style={styles.deleteButton}>
                       <Trash2 size={18} />
                     </button>
                   </div>
@@ -299,12 +202,16 @@ export default function MateriasPage() {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center mt-4">
-        <nav className="flex items-center">
+      <div style={styles.pagination}>
+        <div style={styles.paginationNav}>
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="px-2 py-1 border rounded-l flex items-center justify-center disabled:opacity-50"
+            style={{
+              ...styles.paginationButton,
+              ...(currentPage === 1 ? styles.paginationButtonDisabled : {}),
+              ...styles.paginationButtonLeft
+            }}
           >
             <ChevronLeft size={16} />
           </button>
@@ -315,9 +222,10 @@ export default function MateriasPage() {
               <button
                 key={pageNum}
                 onClick={() => setCurrentPage(pageNum)}
-                className={`px-3 py-1 border-t border-b ${
-                  currentPage === pageNum ? 'bg-blue-500 text-white' : 'bg-white'
-                }`}
+                style={{
+                  ...styles.paginationPageButton,
+                  ...(currentPage === pageNum ? styles.paginationPageButtonActive : {})
+                }}
               >
                 {pageNum}
               </button>
@@ -327,11 +235,15 @@ export default function MateriasPage() {
           <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages || totalPages === 0}
-            className="px-2 py-1 border rounded-r flex items-center justify-center disabled:opacity-50"
+            style={{
+              ...styles.paginationButton,
+              ...(currentPage === totalPages || totalPages === 0 ? styles.paginationButtonDisabled : {}),
+              ...styles.paginationButtonRight
+            }}
           >
             <ChevronRight size={16} />
           </button>
-        </nav>
+        </div>
       </div>
     </div>
   );
