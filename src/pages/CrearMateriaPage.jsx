@@ -1,19 +1,26 @@
 import { useState } from 'react';
-import { ArrowLeft, Plus, X, Save } from 'lucide-react';
 import {styles} from '../styles/upp-style'
+import {notificationStyles} from '../styles/notification-styles'
+import {iconStyles} from '../styles/icon-styles'
+import axios from 'axios';
 
 const NuevaMateriaForm = () => {
   const [formData, setFormData] = useState({
-    codigo: '',
+    codigoDeMateria: '',
     nombre: '',
     contenidos: '',
-    creditosOtorga: '',
+    creditosQueOtorga: '',
     creditosNecesarios: '',
     tipo: 'OBLIGATORIA',
-    correlativas: []
+    codigosCorrelativas: []
   });
 
   const [newCorrelativa, setNewCorrelativa] = useState('');
+  const [notification, setNotification] = useState({
+    show: false,
+    type: '', 
+    message: ''
+  });
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,7 +34,7 @@ const NuevaMateriaForm = () => {
     if (newCorrelativa.trim() !== '') {
       setFormData(prevState => ({
         ...prevState,
-        correlativas: [...prevState.correlativas, newCorrelativa.trim()]
+        codigosCorrelativas: [...prevState.codigosCorrelativas, newCorrelativa.trim()]
       }));
       setNewCorrelativa('');
     }
@@ -36,20 +43,82 @@ const NuevaMateriaForm = () => {
   const handleRemoveCorrelativa = (index) => {
     setFormData(prevState => ({
       ...prevState,
-      correlativas: prevState.correlativas.filter((_, i) => i !== index)
+      codigosCorrelativas: prevState.codigosCorrelativas.filter((_, i) => i !== index)
     }));
   };
 
-  const handleSubmit = () => {
-    console.log('Form submitted:', formData);
-    // Here you would handle the form submission logic
+  const showNotification = (type, message) => {
+    setNotification({
+      show: true,
+      type,
+      message
+    });
+    
+    // Auto-hide notification after 5 seconds
+    setTimeout(() => {
+      setNotification(prev => ({ ...prev, show: false }));
+    }, 5000);
+  };
+
+  const closeNotification = () => {
+    setNotification(prev => ({ ...prev, show: false }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      console.log('Form submitted:', process.env.REACT_APP_API_ENDPOINT + "/materias", formData);
+
+      const response = await axios.post(
+        process.env.REACT_APP_API_ENDPOINT + "/materias",
+        JSON.stringify(formData),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      console.log('Response:', response.data);
+      showNotification('success', 'Materia creada exitosamente');
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      const errorMessage = error.response?.data?.message || 'Error al crear la materia';
+      showNotification('error', errorMessage);
+    }
   };
 
   return (
     <div style={styles.container}>
+      
+      {/* Notificacion */}
+      {notification.show && (
+        <div style={notificationStyles.banner(notification.show, notification.type)}>
+          <div style={notificationStyles.content}>
+            <div style={notificationStyles.icon}>
+              {notification.type === 'success' ? (
+                <div style={{...iconStyles.icon, ...iconStyles.successIcon}}>
+                  <span style={iconStyles.checkmark}>✓</span>
+                </div>
+              ) : (
+                <div style={{...iconStyles.icon, ...iconStyles.alertIcon}}>
+                  <span style={iconStyles.x}>x</span>
+                </div>
+              )}
+            </div>
+            <div style={notificationStyles.message}>{notification.message}</div>
+          </div>
+          <button 
+            style={notificationStyles.closeButton} 
+            onClick={closeNotification}
+          >
+            <span style={iconStyles.xLarge}>×</span>
+          </button>
+        </div>
+      )}
+
       <div style={styles.header}>
         <button style={styles.headerButton}>
-          <ArrowLeft size={16} />
+          <span style={iconStyles.arrowLeft}>←</span>
           <span style={styles.headerButtonText}>Volver a Gestión de Materias</span>
         </button>
       </div>
@@ -59,20 +128,20 @@ const NuevaMateriaForm = () => {
       <div style={styles.formContainer}>
         <div style={styles.formGrid}>
           <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="codigo">Código</label>
+            <label style={styles.label}>Código</label>
             <input
               style={styles.input}
               type="text"
-              id="codigo"
-              name="codigo"
-              value={formData.codigo}
+              id="codigoDeMateria"
+              name="codigoDeMateria"
+              value={formData.codigoDeMateria}
               onChange={handleChange}
               placeholder="Ej: MAT101"
             />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="nombre">Nombre</label>
+            <label style={styles.label}>Nombre</label>
             <input
               style={styles.input}
               type="text"
@@ -85,7 +154,7 @@ const NuevaMateriaForm = () => {
           </div>
 
           <div style={styles.formGroupFullWidth}>
-            <label style={styles.label} htmlFor="contenidos">Contenidos</label>
+            <label style={styles.label}>Contenidos</label>
             <textarea
               style={styles.textarea}
               id="contenidos"
@@ -97,20 +166,20 @@ const NuevaMateriaForm = () => {
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="creditosOtorga">Créditos Otorga</label>
+            <label style={styles.label}>Créditos Otorga</label>
             <input
               style={styles.input}
               type="number"
-              id="creditosOtorga"
-              name="creditosOtorga"
-              value={formData.creditosOtorga}
+              id="creditosQueOtorga"
+              name="creditosQueOtorga"
+              value={formData.creditosQueOtorga}
               onChange={handleChange}
               min="0"
             />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="creditosNecesarios">Créditos Necesarios</label>
+            <label style={styles.label}>Créditos Necesarios</label>
             <input
               style={styles.input}
               type="number"
@@ -123,7 +192,7 @@ const NuevaMateriaForm = () => {
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label} htmlFor="tipo">Tipo</label>
+            <label style={styles.label}>Tipo</label>
             <select
               style={styles.select}
               id="tipo"
@@ -151,11 +220,11 @@ const NuevaMateriaForm = () => {
                 type="button" 
                 onClick={handleAddCorrelativa}
               >
-                <Plus size={16} />
+                <span style={iconStyles.plus}>+</span>
               </button>
             </div>
             <div style={styles.correlativasContainer}>
-              {formData.correlativas.map((correlativa, index) => (
+              {formData.codigosCorrelativas.map((correlativa, index) => (
                 <div key={index} style={styles.correlativaChip}>
                   <span>{correlativa}</span>
                   <button 
@@ -163,7 +232,7 @@ const NuevaMateriaForm = () => {
                     type="button" 
                     onClick={() => handleRemoveCorrelativa(index)}
                   >
-                    <X size={14} />
+                    <span style={iconStyles.x}>×</span>
                   </button>
                 </div>
               ))}
@@ -183,7 +252,9 @@ const NuevaMateriaForm = () => {
             type="button" 
             onClick={handleSubmit}
           >
-            <span style={styles.saveButtonIcon}><Save size={16} /></span>
+            <span style={styles.saveButtonIcon}>
+              <span style={iconStyles.save}>💾</span>
+            </span>
             Guardar
           </button>
         </div>

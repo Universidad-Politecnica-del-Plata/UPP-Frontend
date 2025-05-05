@@ -1,48 +1,13 @@
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Edit, Trash2 } from 'lucide-react';
-import {styles} from '../styles/upp-style'
-
-// Sample data based on Java class
-const initialMaterias = [
-  { 
-    id: 1, 
-    codigoDeMateria: 'MAT101', 
-    nombre: 'Álgebra Lineal', 
-    contenidos: 'Matrices, Vectores, Espacios Vectoriales',
-    creditosQueOtorga: 6, 
-    creditosNecesarios: 0, 
-    tipo: 'OBLIGATORIA',
-    correlativas: ['MAT100'],
-    estado: 'Activo' 
-  },
-  { 
-    id: 2, 
-    codigoDeMateria: 'INF201', 
-    nombre: 'Programación Orientada a Objetos', 
-    contenidos: 'Clases, Herencia, Polimorfismo',
-    creditosQueOtorga: 8, 
-    creditosNecesarios: 12, 
-    tipo: 'OBLIGATORIA',
-    correlativas: ['INF101', 'INF102'],
-    estado: 'Activo' 
-  },
-  { 
-    id: 3, 
-    codigoDeMateria: 'FIS301', 
-    nombre: 'Física Cuántica', 
-    contenidos: 'Mecánica cuántica, Dualidad onda-partícula',
-    creditosQueOtorga: 10, 
-    creditosNecesarios: 24, 
-    tipo: 'OPTATIVA',
-    correlativas: ['FIS201', 'MAT201', 'MAt10101'],
-    estado: 'Inactivo' 
-  },
-];
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import {styles} from '../styles/upp-style';
 
 const tipoOptions = ["Todos los tipos", "OBLIGATORIA", "OPTATIVA"];
 
 export default function MateriasPage() {
-  const [materias, setMaterias] = useState(initialMaterias);
+  const [materias, setMaterias] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     tipo: "Todos los tipos",
@@ -53,12 +18,28 @@ export default function MateriasPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const materiasPerPage = 5;
 
-  // Handle search input change
+  useEffect(() => {
+    const fetchMaterias = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${process.env.REACT_APP_API_ENDPOINT}/materias`);
+        setMaterias(response.data);
+        setError(null);
+      } catch (err) {
+        console.error("Error al cargar materias:", err);
+        setError("Error al cargar las materias.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMaterias();
+  }, []);
+
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  // Handle filter changes
   const handleFilterChange = (filterName, value) => {
     setFilters({
       ...filters,
@@ -66,31 +47,27 @@ export default function MateriasPage() {
     });
   };
 
-  // Apply filters and search
   const filteredMaterias = materias.filter(materia => {
     const matchesSearch = 
       searchTerm === '' || 
       materia.codigoDeMateria.toLowerCase().includes(searchTerm.toLowerCase()) || 
       materia.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      materia.contenidos.toLowerCase().includes(searchTerm.toLowerCase())||
-      materia.correlativas.some(correlativa => correlativa.toLowerCase().includes(searchTerm.toLowerCase()));
+      materia.contenidos.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (materia.codigosCorrelativas && Array.isArray(materia.codigosCorrelativas) && 
+        materia.codigosCorrelativas.some(correlativa => correlativa.toLowerCase().includes(searchTerm.toLowerCase())));
     
     const matchesTipo = 
       filters.tipo === "Todos los tipos" || 
       materia.tipo === filters.tipo;
     
-    
-    
     return matchesSearch && matchesTipo;
   });
 
-  // Pagination
   const indexOfLastMateria = currentPage * materiasPerPage;
   const indexOfFirstMateria = indexOfLastMateria - materiasPerPage;
   const currentMaterias = filteredMaterias.slice(indexOfFirstMateria, indexOfLastMateria);
   const totalPages = Math.ceil(filteredMaterias.length / materiasPerPage);
 
-  // Reset filters
   const resetFilters = () => {
     setFilters({
       tipo: "Todos los tipos",
@@ -104,6 +81,8 @@ export default function MateriasPage() {
   return (
     <div style={styles.container}>
       <h1 style={styles.heading}>Gestión de Materias</h1>
+
+      {error && <div style={styles.errorMessage}>{error}</div>}
 
       <div style={styles.filtersContainer}>
         <div style={styles.filtersGrid}>
@@ -140,68 +119,73 @@ export default function MateriasPage() {
         </div>
       </div>
 
-      {/* Materias Table */}
-      <div style={styles.tableContainer}>
-        <table style={styles.table}>
-          <thead style={styles.tableHead}>
-            <tr>
-              <th style={styles.tableHeadCell}>Código</th>
-              <th style={styles.tableHeadCell}>Nombre</th>
-              <th style={styles.tableHeadCell}>Contenidos</th>
-              <th style={styles.tableHeadCell}>Créditos Otorga</th>
-              <th style={styles.tableHeadCell}>Créditos Necesarios</th>
-              <th style={styles.tableHeadCell}>Tipo</th>
-              <th style={styles.tableHeadCell}>Correlativas</th>
-              <th style={styles.tableHeadCell}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentMaterias.map(materia => (
-              <tr key={materia.id} style={styles.tableRow}>
-                <td style={styles.tableCell}>{materia.codigoDeMateria}</td>
-                <td style={styles.tableCell}>{materia.nombre}</td>
-                <td style={styles.tableCell}>
-                  <div style={styles.truncateText} title={materia.contenidos}>
-                    {materia.contenidos}
-                  </div>
-                </td>
-                <td style={styles.tableCell}>{materia.creditosQueOtorga}</td>
-                <td style={styles.tableCell}>{materia.creditosNecesarios}</td>
-                <td style={styles.tableCell}>
-                  <span style={
-                    materia.tipo === 'OBLIGATORIA' ? styles.badgeObligatoria : 
-                    materia.tipo === 'OPTATIVA' ? styles.badgeOptativa : 
-                    styles.badgeOptativa
-                  }>
-                    {materia.tipo}
-                  </span>
-                </td>
-                <td style={styles.tableCell}>
-                  <div>
-                    {materia.correlativas.map((correlativa, index) => (
-                      <div key={index} style={styles.correlativaChip}>
-                        {correlativa}
-                      </div>
-                    ))}
-                  </div>
-                </td>
-                <td style={styles.tableCell}>
-                  <div style={styles.actionButtonsContainer}>
-                    <button style={styles.editButton}>
-                      <Edit size={18} />
-                    </button>
-                    <button style={styles.deleteButton}>
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </td>
+      {loading ? (
+        <div style={styles.loadingContainer}>Cargando materias...</div>
+      ) : (
+        <div style={styles.tableContainer}>
+          <table style={styles.table}>
+            <thead style={styles.tableHead}>
+              <tr>
+                <th style={styles.tableHeadCell}>Código</th>
+                <th style={styles.tableHeadCell}>Nombre</th>
+                <th style={styles.tableHeadCell}>Contenidos</th>
+                <th style={styles.tableHeadCell}>Créditos Otorga</th>
+                <th style={styles.tableHeadCell}>Créditos Necesarios</th>
+                <th style={styles.tableHeadCell}>Tipo</th>
+                <th style={styles.tableHeadCell}>Correlativas</th>
+                <th style={styles.tableHeadCell}>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {currentMaterias.map(materia => (
+                <tr key={materia.codigoDeMateria} style={styles.tableRow}>
+                  <td style={styles.tableCell}>{materia.codigoDeMateria}</td>
+                  <td style={styles.tableCell}>{materia.nombre}</td>
+                  <td style={styles.tableCell}>
+                    <div style={styles.truncateText} title={materia.contenidos}>
+                      {materia.contenidos}
+                    </div>
+                  </td>
+                  <td style={styles.tableCell}>{materia.creditosQueOtorga}</td>
+                  <td style={styles.tableCell}>{materia.creditosNecesarios}</td>
+                  <td style={styles.tableCell}>
+                    <span style={
+                      materia.tipo === 'OBLIGATORIA' ? styles.badgeObligatoria : 
+                      materia.tipo === 'OPTATIVA' ? styles.badgeOptativa : 
+                      styles.badgeOptativa
+                    }>
+                      {materia.tipo}
+                    </span>
+                  </td>
+                  <td style={styles.tableCell}>
+                    <div>
+                      {materia.codigosCorrelativas && Array.isArray(materia.codigosCorrelativas) ? 
+                        materia.codigosCorrelativas.map((correlativa, index) => (
+                          <div key={index} style={styles.correlativaChip}>
+                            {correlativa}
+                          </div>
+                        )) : 
+                        <span>Sin correlativas</span>
+                      }
+                    </div>
+                  </td>
+                  <td style={styles.tableCell}>
+                    <div style={styles.actionButtonsContainer}>
+                      <button style={styles.editButton} title="Editar">
+                        ✏️
+                      </button>
+                      <button style={styles.deleteButton} title="Eliminar">
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      {/* Pagination */}
       <div style={styles.pagination}>
         <div style={styles.paginationNav}>
           <button
@@ -213,7 +197,7 @@ export default function MateriasPage() {
               ...styles.paginationButtonLeft
             }}
           >
-            <ChevronLeft size={16} />
+            &laquo;
           </button>
           
           {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
@@ -241,7 +225,7 @@ export default function MateriasPage() {
               ...styles.paginationButtonRight
             }}
           >
-            <ChevronRight size={16} />
+            &raquo;
           </button>
         </div>
       </div>
