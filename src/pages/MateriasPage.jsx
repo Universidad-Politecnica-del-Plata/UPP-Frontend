@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {styles} from '../styles/upp-style';
+import {confirmationModalStyles} from '../styles/confirm-modal-styles'
 
 const tipoOptions = ["Todos los tipos", "OBLIGATORIA", "OPTATIVA"];
 
@@ -16,7 +18,9 @@ export default function MateriasPage() {
     estado: "Todos",
   });
   const [currentPage, setCurrentPage] = useState(1);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const materiasPerPage = 5;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMaterias = async () => {
@@ -45,6 +49,39 @@ export default function MateriasPage() {
       ...filters,
       [filterName]: value
     });
+  };
+
+  const handleDeleteClick = (codigoMateria) => {
+    setConfirmDelete(codigoMateria);
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmDelete(null);
+  };
+
+  const deleteMateria = async (codigoMateria) => {
+    try {
+      await axios.delete(
+        `${process.env.REACT_APP_API_ENDPOINT}/materias/${codigoMateria}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
+      setConfirmDelete(null);
+      
+      setMaterias(prevMaterias => 
+        prevMaterias.filter(materia => materia.codigoDeMateria !== codigoMateria)
+      );
+      
+      setError(null);
+    } catch (err) {
+      console.error("Error al eliminar materia:", err);
+      setError("Error al eliminar la materia.");
+      setConfirmDelete(null);
+    }
   };
 
   const filteredMaterias = materias.filter(materia => {
@@ -111,7 +148,7 @@ export default function MateriasPage() {
           </div>
 
           <div style={styles.buttonGroup}>
-          <button style={styles.newButton}>
+          <button style={styles.newButton} onClick={() => navigate('/CrearMateria')}>
             Nueva Materia
           </button>
           </div>
@@ -171,10 +208,16 @@ export default function MateriasPage() {
                   </td>
                   <td style={styles.tableCell}>
                     <div style={styles.actionButtonsContainer}>
-                      <button style={styles.editButton} title="Editar">
+                      <button style={styles.editButton} title="Editar"   onClick={() => navigate(`/EditarMateria/${materia.codigoDeMateria}`)}
+                      >
+                        
                         ✏️
                       </button>
-                      <button style={styles.deleteButton} title="Eliminar">
+                      <button 
+                        style={styles.deleteButton} 
+                        title="Eliminar" 
+                        onClick={() => handleDeleteClick(materia.codigoDeMateria)}
+                      >
                         🗑️
                       </button>
                     </div>
@@ -229,6 +272,30 @@ export default function MateriasPage() {
           </button>
         </div>
       </div>
+
+      {confirmDelete && (
+        <div style={confirmationModalStyles.simpleOverlay}>
+          <div style={confirmationModalStyles.simpleModal}>
+            <p style={confirmationModalStyles.simpleMessage}>
+              ¿Esta seguro que desea eliminar la materia {confirmDelete}?
+            </p>
+            <div style={confirmationModalStyles.simpleButtons}>
+              <button 
+                style={confirmationModalStyles.simpleCancelButton}
+                onClick={handleCancelDelete}
+              >
+                Cancelar
+              </button>
+              <button 
+                style={confirmationModalStyles.simpleConfirmButton}
+                onClick={() => deleteMateria(confirmDelete)}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
