@@ -26,17 +26,50 @@ export default function MateriasPage() {
     const fetchMaterias = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${process.env.REACT_APP_API_ENDPOINT}/materias`);
+        
+        // Get the token from localStorage
+        const token = localStorage.getItem('authToken');
+        
+        // If no token exists, handle accordingly (redirect to login or show error)
+        if (!token) {
+          setError("No se encontró token de autenticación. Por favor, inicie sesión nuevamente.");
+          // Optionally redirect to login page
+          // navigate('/login');
+          return;
+        }
+        
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_ENDPOINT}/materias`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
         setMaterias(response.data);
         setError(null);
       } catch (err) {
         console.error("Error al cargar materias:", err);
-        setError("Error al cargar las materias.");
+        
+        // Handle different types of errors
+        if (err.response?.status === 401) {
+          setError("Sesión expirada. Por favor, inicie sesión nuevamente.");
+          // Remove invalid token
+          localStorage.removeItem('authToken');
+          // Optionally redirect to login page
+          // navigate('/login');
+        } else if (err.response?.status === 403) {
+          setError("No tiene permisos para acceder a esta información.");
+        } else {
+          setError("Error al cargar las materias.");
+        }
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchMaterias();
   }, []);
 

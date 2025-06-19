@@ -1,6 +1,7 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import LoginPage from "./pages/LoginPage.jsx";
 import MateriasPage from "./pages/MateriasPage.jsx";
 import CrearMateriaPage from "./pages/CrearMateriaPage.jsx";
 import EditarMateriaPage from "./pages/EditarMateriasPage.jsx";
@@ -12,6 +13,9 @@ function App() {
         <Routes>
           <Route path="/">
             <Route index element={"home"} />
+          </Route>
+          <Route path="/login">
+            <Route index element={<LoginPage/>} />
           </Route>
           <Route path="/GestionMaterias">
             <Route index element={<MateriasPage />} />
