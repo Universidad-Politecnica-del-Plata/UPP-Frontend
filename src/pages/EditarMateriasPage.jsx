@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
 import { styles } from '../styles/upp-style'
 import { useNavigate, useParams } from 'react-router-dom';
-import { notificationStyles } from '../styles/notification-styles'
-import { iconStyles } from '../styles/icon-styles'
-import axios from 'axios';
+import Notification from '../components/Notification';
+import { useNotification } from '../hooks/useNotification';
+import { iconStyles } from '../styles/icon-styles';
+import { getMateria,updateMateria } from '../api/materiasApi';
+
+
+
 
 const EditMateriaForm = () => {
   const navigate = useNavigate();
@@ -20,19 +24,14 @@ const EditMateriaForm = () => {
   });
 
   const [newCorrelativa, setNewCorrelativa] = useState('');
-  const [notification, setNotification] = useState({
-    show: false,
-    type: '', 
-    message: ''
-  });
+  const { notification, showNotification, closeNotification } = useNotification();
+
   
   useEffect(() => {
     const fetchMateria = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_ENDPOINT}/materias/${codigoDeMateria}`
-        );
+        const response = await getMateria(codigoDeMateria);
         setFormData(response.data);
         setIsLoading(false);
       } catch (error) {
@@ -71,36 +70,18 @@ const EditMateriaForm = () => {
       codigosCorrelativas: prevState.codigosCorrelativas.filter((_, i) => i !== index)
     }));
   };
-
-  const showNotification = (type, message) => {
-    setNotification({
-      show: true,
-      type,
-      message
-    });
-    
-    setTimeout(() => {
-      setNotification(prev => ({ ...prev, show: false }));
-    }, 5000);
-  };
-
-  const closeNotification = () => {
-    setNotification(prev => ({ ...prev, show: false }));
-  };
+   const token = localStorage.getItem('authToken');
+        
+  if (!token) {
+    showNotification('error', "No se encontró token de autenticación. Por favor, inicie sesión nuevamente.");
+    return;
+  }
 
   const handleSubmit = async () => {
     try {
       console.log('Form submitted:', `${process.env.REACT_APP_API_ENDPOINT}/materias/${codigoDeMateria}`, formData);
 
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_ENDPOINT}/materias/${codigoDeMateria}`,
-        JSON.stringify(formData),
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await updateMateria(codigoDeMateria,formData);
 
       console.log('Response:', response.data);
       showNotification('success', 'Materia actualizada exitosamente');
@@ -122,30 +103,13 @@ const EditMateriaForm = () => {
   return (
     <div style={styles.container}>
       
-      {notification.show && (
-        <div style={notificationStyles.banner(notification.show, notification.type)}>
-          <div style={notificationStyles.content}>
-            <div style={notificationStyles.icon}>
-              {notification.type === 'success' ? (
-                <div style={{...iconStyles.icon, ...iconStyles.successIcon}}>
-                  <span style={iconStyles.checkmark}>✓</span>
-                </div>
-              ) : (
-                <div style={{...iconStyles.icon, ...iconStyles.alertIcon}}>
-                  <span style={iconStyles.x}>x</span>
-                </div>
-              )}
-            </div>
-            <div style={notificationStyles.message}>{notification.message}</div>
-          </div>
-          <button 
-            style={notificationStyles.closeButton} 
-            onClick={closeNotification}
-          >
-            <span style={iconStyles.xLarge}>×</span>
-          </button>
-        </div>
-      )}
+      <Notification
+      show={notification.show}
+      type={notification.type}
+      message={notification.message}
+      onClose={closeNotification}
+    />
+
 
       <div style={styles.header}>
         <button style={styles.headerButton} onClick={() => navigate('/GestionMaterias')}>

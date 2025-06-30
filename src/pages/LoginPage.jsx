@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { loginStyles } from '../styles/login-style';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import Notification from '../components/Notification';
+import { useNotification } from '../hooks/useNotification';
+import { postLogin } from '../api/loginApi';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -10,8 +12,8 @@ const LoginPage = () => {
     password: ''
   });
   
+  const { notification, showNotification, closeNotification } = useNotification();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,26 +25,18 @@ const LoginPage = () => {
 
   const handleSubmit = async () => {
     if (!formData.dni || !formData.password) {
-      setError('Por favor, complete todos los campos');
+      showNotification('error', 'Por favor, complete todos los campos');
       return;
     }
 
     setLoading(true);
-    setError('');
 
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_ENDPOINT}/auth/login`,
+      const response = await postLogin(
         {
           username: formData.dni,
           password: formData.password
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+        });
 
       const token = response.data.token;
       localStorage.setItem('authToken', token);
@@ -55,9 +49,9 @@ const LoginPage = () => {
       console.error('Login error:', error);
       
       if (error.response?.status === 401) {
-        setError('Credenciales inválidas');
+        showNotification('error', 'Credenciales inválidas');
       } else {
-        setError('Error al iniciar sesión. Intente nuevamente.');
+        showNotification('error', 'Error al iniciar sesión. Intente nuevamente.');
       }
     } finally {
       setLoading(false);
@@ -66,13 +60,20 @@ const LoginPage = () => {
 
   const handleForgotPassword = () => {
     console.log('Recuperar contraseña clicked');
-    // Handle forgot password
+    
   };
 
   return (
     <div style={loginStyles.container}>
+      <Notification
+        show={notification.show}
+        type={notification.type}
+        message={notification.message}
+        onClose={closeNotification}
+      />
+
       <div style={loginStyles.mainCard}>
-        {/* Left Panel */}
+        
         <div style={loginStyles.leftPanel}>
           <h1 style={loginStyles.welcomeTitle}>
             Bienvenido a la Universidad Politécnica del Plata
@@ -102,7 +103,6 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Right Panel */}
         <div style={loginStyles.rightPanel}>
           <h2 style={loginStyles.loginTitle}>INICIAR SESIÓN</h2>
           
@@ -152,12 +152,6 @@ const LoginPage = () => {
             >
               {loading ? 'Ingresando...' : 'Ingresar'}
             </button>
-            
-            {error && (
-              <div style={loginStyles.errorMessage}>
-                {error}
-              </div>
-            )}
           </div>
           
           <div style={loginStyles.forgotPassword}>

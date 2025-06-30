@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import {styles} from '../styles/upp-style';
 import {confirmationModalStyles} from '../styles/confirm-modal-styles'
+import Notification from '../components/Notification';
+import { useNotification } from '../hooks/useNotification';
+import { getTodasMaterias, deleteMateria } from '../api/materiasApi';
+
 
 const tipoOptions = ["Todos los tipos", "OBLIGATORIA", "OPTATIVA"];
 
 export default function MateriasPage() {
   const [materias, setMaterias] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { notification, showNotification, closeNotification } = useNotification();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     tipo: "Todos los tipos",
@@ -27,43 +31,25 @@ export default function MateriasPage() {
       try {
         setLoading(true);
         
-        // Get the token from localStorage
         const token = localStorage.getItem('authToken');
         
-        // If no token exists, handle accordingly (redirect to login or show error)
         if (!token) {
-          setError("No se encontró token de autenticación. Por favor, inicie sesión nuevamente.");
-          // Optionally redirect to login page
-          // navigate('/login');
+          showNotification('error', "No se encontró token de autenticación. Por favor, inicie sesión nuevamente.");
           return;
         }
         
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_ENDPOINT}/materias`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        
+        const response = await getTodasMaterias();
         setMaterias(response.data);
-        setError(null);
       } catch (err) {
         console.error("Error al cargar materias:", err);
         
-        // Handle different types of errors
         if (err.response?.status === 401) {
-          setError("Sesión expirada. Por favor, inicie sesión nuevamente.");
-          // Remove invalid token
+          showNotification('error', "Sesión expirada. Por favor, inicie sesión nuevamente.");
           localStorage.removeItem('authToken');
-          // Optionally redirect to login page
-          // navigate('/login');
         } else if (err.response?.status === 403) {
-          setError("No tiene permisos para acceder a esta información.");
+          showNotification('error', "No tiene permisos para acceder a esta información.");
         } else {
-          setError("Error al cargar las materias.");
+          showNotification('error', "Error al cargar las materias.");
         }
       } finally {
         setLoading(false);
@@ -92,27 +78,20 @@ export default function MateriasPage() {
     setConfirmDelete(null);
   };
 
-  const deleteMateria = async (codigoMateria) => {
+  const handleDeleteMateria = async (codigoMateria) => {
     try {
-      await axios.delete(
-        `${process.env.REACT_APP_API_ENDPOINT}/materias/${codigoMateria}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      await deleteMateria(codigoMateria);
       
       setConfirmDelete(null);
       
       setMaterias(prevMaterias => 
         prevMaterias.filter(materia => materia.codigoDeMateria !== codigoMateria)
       );
-      
-      setError(null);
+      showNotification('success', "Materia eliminada exitosamente.");
+
     } catch (err) {
       console.error("Error al eliminar materia:", err);
-      setError("Error al eliminar la materia.");
+      showNotification('error', "Error al eliminar la materia.");
       setConfirmDelete(null);
     }
   };
@@ -150,9 +129,14 @@ export default function MateriasPage() {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.heading}>Gestión de Materias</h1>
+       <Notification
+      show={notification.show}
+      type={notification.type}
+      message={notification.message}
+      onClose={closeNotification}
+    />
 
-      {error && <div style={styles.errorMessage}>{error}</div>}
+      <h1 style={styles.heading}>Gestión de Materias</h1>
 
       <div style={styles.filtersContainer}>
         <div style={styles.filtersGrid}>
@@ -321,7 +305,7 @@ export default function MateriasPage() {
               </button>
               <button 
                 style={confirmationModalStyles.simpleConfirmButton}
-                onClick={() => deleteMateria(confirmDelete)}
+                onClick={() => handleDeleteMateria(confirmDelete)}
               >
                 Eliminar
               </button>
