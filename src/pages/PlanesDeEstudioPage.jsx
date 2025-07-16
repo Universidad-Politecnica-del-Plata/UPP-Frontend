@@ -172,7 +172,7 @@ export default function PlanesDeEstudioPage() {
                   </td>
                   <td style={styles.tableCell}>
                     <div style={styles.actionButtonsContainer}>
-                      <button style={styles.editButton} title="Editar"   onClick={() => navigate(`/EditarPlanDeEstudio/${plan.codigoDePlanDeEstudios}`)}
+                      <button style={styles.editButton} title="Editar"   onClick={() => navigate(`/EditarPlanDeEstudios/${plan.codigoDePlanDeEstudios}`)}
                       >
                         ✏️
                       </button>
