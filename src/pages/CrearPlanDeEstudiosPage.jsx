@@ -82,7 +82,7 @@ const NuevoPlanDeEstudiosForm = () => {
     />
 
       <div style={styles.header}>
-        <button style={styles.headerButton} onClick={() => navigate('/PlanesDeEstudio')}>
+        <button style={styles.headerButton} onClick={() => navigate('/GestionarPlanesDeEstudio')}>
           <span style={iconStyles.arrowLeft}>←</span>
           <span style={styles.headerButtonText}>Volver a Gestión de Planes de Estudio</span>
         </button>
@@ -180,7 +180,7 @@ const NuevoPlanDeEstudiosForm = () => {
 
         <div style={styles.buttonGroup}>
           <button
-            onClick={() => navigate('/PlanesDeEstudio')}
+            onClick={() => navigate('/GestionarPlanesDeEstudio')}
             style={styles.cancelButton}
             type="button" 
           >
