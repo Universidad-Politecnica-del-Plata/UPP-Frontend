@@ -4,30 +4,21 @@ import {styles} from '../styles/upp-style';
 import {confirmationModalStyles} from '../styles/confirm-modal-styles'
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
-import { getTodasMaterias, deleteMateria } from '../api/materiasApi';
+import { getTodosPlanesDeEstudio, deletePlanDeEstudios } from '../api/planDeEstudiosApi';
 
-
-const tipoOptions = ["Todos los tipos", "OBLIGATORIA", "OPTATIVA"];
-
-export default function MateriasPage() {
-  const [materias, setMaterias] = useState([]);
+export default function PlanesDeEstudioPage() {
+  const [planesDeEstudio, setPlanesDeEstudio] = useState([]);
   const [loading, setLoading] = useState(true);
   const { notification, showNotification, closeNotification } = useNotification();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    tipo: "Todos los tipos",
-    creditosOtorga: "Todos",
-    creditosNecesarios: "Todos",
-    estado: "Todos",
-  });
   const [currentPage, setCurrentPage] = useState(1);
   const [confirmDelete, setConfirmDelete] = useState(null);
-  const materiasPerPage = 5;
+  const planesPerPage = 5;
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchMaterias = async () => {
+    const fetchPlanesDeEstudio = async () => {
       try {
         setLoading(true);
         
@@ -38,10 +29,10 @@ export default function MateriasPage() {
           return;
         }
         
-        const response = await getTodasMaterias();
-        setMaterias(response.data);
+        const response = await getTodosPlanesDeEstudio();
+        setPlanesDeEstudio(response.data);
       } catch (err) {
-        console.error("Error al cargar materias:", err);
+        console.error("Error al cargar planes de estudio:", err);
         
         if (err.response?.status === 401) {
           showNotification('error', "Sesión expirada. Por favor, inicie sesión nuevamente.");
@@ -49,83 +40,66 @@ export default function MateriasPage() {
         } else if (err.response?.status === 403) {
           showNotification('error', "No tiene permisos para acceder a esta información.");
         } else {
-          showNotification('error', "Error al cargar las materias.");
+          showNotification('error', "Error al cargar los planes de estudio.");
         }
       } finally {
         setLoading(false);
       }
     };
   
-    fetchMaterias();
+    fetchPlanesDeEstudio();
   }, []);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const handleFilterChange = (filterName, value) => {
-    setFilters({
-      ...filters,
-      [filterName]: value
-    });
-  };
-
-  const handleDeleteClick = (codigoMateria) => {
-    setConfirmDelete(codigoMateria);
+  const handleDeleteClick = (codigoPlan) => {
+    setConfirmDelete(codigoPlan);
   };
 
   const handleCancelDelete = () => {
     setConfirmDelete(null);
   };
 
-  const handleDeleteMateria = async (codigoMateria) => {
+  const handleDeletePlan = async (codigoPlan) => {
     try {
-      await deleteMateria(codigoMateria);
+      await deletePlanDeEstudios(codigoPlan);
       
       setConfirmDelete(null);
       
-      setMaterias(prevMaterias => 
-        prevMaterias.filter(materia => materia.codigoDeMateria !== codigoMateria)
+      setPlanesDeEstudio(prevPlanes => 
+        prevPlanes.filter(plan => plan.codigoDePlanDeEstudios !== codigoPlan)
       );
-      showNotification('success', "Materia eliminada exitosamente.");
+      showNotification('success', "Plan de estudio eliminado exitosamente.");
 
     } catch (err) {
-      console.error("Error al eliminar materia:", err);
-      showNotification('error', "Error al eliminar la materia.");
+      console.error("Error al eliminar plan de estudio:", err);
+      showNotification('error', "Error al eliminar el plan de estudio.");
       setConfirmDelete(null);
     }
   };
 
-  const filteredMaterias = materias.filter(materia => {
+  const formatDate = (dateString) => {
+    if (!dateString) return 'No especificada';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES');
+  };
+
+  const filteredPlanes = planesDeEstudio.filter(plan => {
     const matchesSearch = 
       searchTerm === '' || 
-      materia.codigoDeMateria.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      materia.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      materia.contenidos.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (materia.codigosCorrelativas && Array.isArray(materia.codigosCorrelativas) && 
-        materia.codigosCorrelativas.some(correlativa => correlativa.toLowerCase().includes(searchTerm.toLowerCase())));
+      plan.codigoDePlanDeEstudios.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (plan.codigosMaterias && Array.isArray(plan.codigosMaterias) && 
+        plan.codigosMaterias.some(codigo => codigo.toLowerCase().includes(searchTerm.toLowerCase())));
     
-    const matchesTipo = 
-      filters.tipo === "Todos los tipos" || 
-      materia.tipo === filters.tipo;
-    
-    return matchesSearch && matchesTipo;
+    return matchesSearch;
   });
 
-  const indexOfLastMateria = currentPage * materiasPerPage;
-  const indexOfFirstMateria = indexOfLastMateria - materiasPerPage;
-  const currentMaterias = filteredMaterias.slice(indexOfFirstMateria, indexOfLastMateria);
-  const totalPages = Math.ceil(filteredMaterias.length / materiasPerPage);
-
-  const resetFilters = () => {
-    setFilters({
-      tipo: "Todos los tipos",
-      creditosOtorga: "Todos",
-      creditosNecesarios: "Todos",
-      estado: "Todos",
-    });
-    setSearchTerm('');
-  };
+  const indexOfLastPlan = currentPage * planesPerPage;
+  const indexOfFirstPlan = indexOfLastPlan - planesPerPage;
+  const currentPlanes = filteredPlanes.slice(indexOfFirstPlan, indexOfLastPlan);
+  const totalPages = Math.ceil(filteredPlanes.length / planesPerPage);
 
   return (
     <div style={styles.container}>
@@ -136,28 +110,15 @@ export default function MateriasPage() {
       onClose={closeNotification}
     />
 
-      <h1 style={styles.heading}>Gestión de Materias</h1>
+      <h1 style={styles.heading}>Gestión de Planes de Estudio</h1>
 
       <div style={styles.filtersContainer}>
         <div style={styles.filtersGrid}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Tipo de Materia</label>
-            <select
-              style={styles.select}
-              value={filters.tipo}
-              onChange={(e) => handleFilterChange('tipo', e.target.value)}
-            >
-              {tipoOptions.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div style={styles.formGroup}>
           <label style={styles.label}>Buscar</label>
           <input
             type="text"
-            placeholder="código, nombre o contenidos"
+            placeholder="código de plan o código de materia"
             style={styles.searchInput}
             value={searchTerm}
             onChange={handleSearchChange}
@@ -165,8 +126,8 @@ export default function MateriasPage() {
           </div>
 
           <div style={styles.buttonGroup}>
-          <button style={styles.newButton} onClick={() => navigate('/CrearMateria')}>
-            Nueva Materia
+          <button style={styles.newButton} onClick={() => navigate('/CrearPlanDeEstudio')}>
+            Nuevo Plan de Estudio
           </button>
           </div>
         
@@ -174,66 +135,51 @@ export default function MateriasPage() {
       </div>
 
       {loading ? (
-        <div style={styles.loadingContainer}>Cargando materias...</div>
+        <div style={styles.loadingContainer}>Cargando planes de estudio...</div>
       ) : (
         <div style={styles.tableContainer}>
           <table style={styles.table}>
             <thead style={styles.tableHead}>
               <tr>
                 <th style={styles.tableHeadCell}>Código</th>
-                <th style={styles.tableHeadCell}>Nombre</th>
-                <th style={styles.tableHeadCell}>Contenidos</th>
-                <th style={styles.tableHeadCell}>Créditos Otorga</th>
-                <th style={styles.tableHeadCell}>Créditos Necesarios</th>
-                <th style={styles.tableHeadCell}>Tipo</th>
-                <th style={styles.tableHeadCell}>Correlativas</th>
+                <th style={styles.tableHeadCell}>Créditos Electivos</th>
+                <th style={styles.tableHeadCell}>Créditos Obligatorios</th>
+                <th style={styles.tableHeadCell}>Fecha Entrada en Vigencia</th>
+                <th style={styles.tableHeadCell}>Fecha Vencimiento</th>
+                <th style={styles.tableHeadCell}>Materias</th>
                 <th style={styles.tableHeadCell}>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {currentMaterias.map(materia => (
-                <tr key={materia.codigoDeMateria} style={styles.tableRow}>
-                  <td style={styles.tableCell}>{materia.codigoDeMateria}</td>
-                  <td style={styles.tableCell}>{materia.nombre}</td>
-                  <td style={styles.tableCell}>
-                    <div style={styles.truncateText} title={materia.contenidos}>
-                      {materia.contenidos}
-                    </div>
-                  </td>
-                  <td style={styles.tableCell}>{materia.creditosQueOtorga}</td>
-                  <td style={styles.tableCell}>{materia.creditosNecesarios}</td>
-                  <td style={styles.tableCell}>
-                    <span style={
-                      materia.tipo === 'OBLIGATORIA' ? styles.badgeObligatoria : 
-                      materia.tipo === 'OPTATIVA' ? styles.badgeOptativa : 
-                      styles.badgeOptativa
-                    }>
-                      {materia.tipo}
-                    </span>
-                  </td>
+              {currentPlanes.map(plan => (
+                <tr key={plan.codigoDePlanDeEstudios} style={styles.tableRow}>
+                  <td style={styles.tableCell}>{plan.codigoDePlanDeEstudios}</td>
+                  <td style={styles.tableCell}>{plan.creditosElectivos}</td>
+                  <td style={styles.tableCell}>{plan.creditosObligatorios}</td>
+                  <td style={styles.tableCell}>{formatDate(plan.fechaEntradaEnVigencia)}</td>
+                  <td style={styles.tableCell}>{formatDate(plan.fechaVencimiento)}</td>
                   <td style={styles.tableCell}>
                     <div>
-                      {materia.codigosCorrelativas && Array.isArray(materia.codigosCorrelativas) ? 
-                        materia.codigosCorrelativas.map((correlativa, index) => (
+                      {plan.codigosMaterias && Array.isArray(plan.codigosMaterias) ? 
+                        plan.codigosMaterias.map((codigoMateria, index) => (
                           <div key={index} style={styles.correlativaChip}>
-                            {correlativa}
+                            {codigoMateria}
                           </div>
                         )) : 
-                        <span>Sin correlativas</span>
+                        <span>Sin materias</span>
                       }
                     </div>
                   </td>
                   <td style={styles.tableCell}>
                     <div style={styles.actionButtonsContainer}>
-                      <button style={styles.editButton} title="Editar"   onClick={() => navigate(`/EditarMateria/${materia.codigoDeMateria}`)}
+                      <button style={styles.editButton} title="Editar"   onClick={() => navigate(`/EditarPlanDeEstudios/${plan.codigoDePlanDeEstudios}`)}
                       >
-                        
                         ✏️
                       </button>
                       <button 
                         style={styles.deleteButton} 
                         title="Eliminar" 
-                        onClick={() => handleDeleteClick(materia.codigoDeMateria)}
+                        onClick={() => handleDeleteClick(plan.codigoDePlanDeEstudios)}
                       >
                         🗑️
                       </button>
@@ -294,7 +240,7 @@ export default function MateriasPage() {
         <div style={confirmationModalStyles.simpleOverlay}>
           <div style={confirmationModalStyles.simpleModal}>
             <p style={confirmationModalStyles.simpleMessage}>
-              ¿Esta seguro que desea eliminar la materia {confirmDelete}?
+              ¿Esta seguro que desea eliminar el plan de estudio {confirmDelete}?
             </p>
             <div style={confirmationModalStyles.simpleButtons}>
               <button 
@@ -305,7 +251,7 @@ export default function MateriasPage() {
               </button>
               <button 
                 style={confirmationModalStyles.simpleConfirmButton}
-                onClick={() => handleDeleteMateria(confirmDelete)}
+                onClick={() => handleDeletePlan(confirmDelete)}
               >
                 Eliminar
               </button>

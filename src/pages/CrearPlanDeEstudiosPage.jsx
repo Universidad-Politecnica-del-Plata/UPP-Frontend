@@ -4,24 +4,20 @@ import { useNavigate } from 'react-router-dom';
 import {iconStyles} from '../styles/icon-styles'
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
-import { createMateria } from '../api/materiasApi';
+import { createPlanDeEstudios } from '../api/planDeEstudiosApi';
 
-
-const NuevaMateriaForm = () => {
+const NuevoPlanDeEstudiosForm = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    codigoDeMateria: '',
-    nombre: '',
-    contenidos: '',
-    creditosQueOtorga: '',
-    creditosNecesarios: '',
-    tipo: 'OBLIGATORIA',
-    codigosCorrelativas: []
+    codigoDePlanDeEstudios: '',
+    creditosElectivos: '',
+    fechaEntradaEnVigencia: '',
+    fechaVencimiento: '',
+    codigosMaterias: []
   });
 
-  const [newCorrelativa, setNewCorrelativa] = useState('');
+  const [newMateria, setNewMateria] = useState('');
   const { notification, showNotification, closeNotification } = useNotification();
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,20 +27,20 @@ const NuevaMateriaForm = () => {
     }));
   };
 
-  const handleAddCorrelativa = () => {
-    if (newCorrelativa.trim() !== '') {
+  const handleAddMateria = () => {
+    if (newMateria.trim() !== '') {
       setFormData(prevState => ({
         ...prevState,
-        codigosCorrelativas: [...prevState.codigosCorrelativas, newCorrelativa.trim()]
+        codigosMaterias: [...prevState.codigosMaterias, newMateria.trim()]
       }));
-      setNewCorrelativa('');
+      setNewMateria('');
     }
   };
 
-  const handleRemoveCorrelativa = (index) => {
+  const handleRemoveMateria = (index) => {
     setFormData(prevState => ({
       ...prevState,
-      codigosCorrelativas: prevState.codigosCorrelativas.filter((_, i) => i !== index)
+      codigosMaterias: prevState.codigosMaterias.filter((_, i) => i !== index)
     }));
   };
 
@@ -57,14 +53,20 @@ const NuevaMateriaForm = () => {
 
   const handleSubmit = async () => {
     try {
-      console.log('Form submitted:', process.env.REACT_APP_API_ENDPOINT + "/materias", formData);
+      // Convert string values to appropriate types
+      const submitData = {
+        ...formData,
+        creditosElectivos: parseInt(formData.creditosElectivos) || 0
+      };
 
-      const response = await createMateria(formData);
+      console.log('Form submitted:', process.env.REACT_APP_API_ENDPOINT + "/planDeEstudios", submitData);
+
+      const response = await createPlanDeEstudios(submitData);
       console.log('Response:', response.data);
-      showNotification('success', 'Materia creada exitosamente');
+      showNotification('success', 'Plan de estudio creado exitosamente');
     } catch (error) {
       console.error('Error submitting form:', error);
-      const errorMessage = error.response?.data?.message || 'Error al crear la materia';
+      const errorMessage = error.response?.data?.message || 'Error al crear el plan de estudio';
       showNotification('error', errorMessage);
     }
   };
@@ -79,122 +81,94 @@ const NuevaMateriaForm = () => {
       onClose={closeNotification}
     />
 
-
       <div style={styles.header}>
-        <button style={styles.headerButton} onClick={() => navigate('/GestionMaterias')}>
+        <button style={styles.headerButton} onClick={() => navigate('/GestionarPlanesDeEstudio')}>
           <span style={iconStyles.arrowLeft}>←</span>
-          <span style={styles.headerButtonText}>Volver a Gestión de Materias</span>
+          <span style={styles.headerButtonText}>Volver a Gestión de Planes de Estudio</span>
         </button>
       </div>
 
-      <h1 style={styles.heading}>Nueva Materia</h1>
+      <h1 style={styles.heading}>Nuevo Plan de Estudio</h1>
 
       <div style={styles.formContainer}>
         <div style={styles.formGrid}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Código</label>
+            <label style={styles.label}>Código del Plan</label>
             <input
               style={styles.input}
               type="text"
-              id="codigoDeMateria"
-              name="codigoDeMateria"
-              value={formData.codigoDeMateria}
+              id="codigoDePlanDeEstudios"
+              name="codigoDePlanDeEstudios"
+              value={formData.codigoDePlanDeEstudios}
               onChange={handleChange}
-              placeholder="Ej: MAT101"
+              placeholder="Ej: PLAN2024"
             />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Nombre</label>
-            <input
-              style={styles.input}
-              type="text"
-              id="nombre"
-              name="nombre"
-              value={formData.nombre}
-              onChange={handleChange}
-              placeholder="Ej: Álgebra Lineal"
-            />
-          </div>
-
-          <div style={styles.formGroupFullWidth}>
-            <label style={styles.label}>Contenidos</label>
-            <textarea
-              style={styles.textarea}
-              id="contenidos"
-              name="contenidos"
-              value={formData.contenidos}
-              onChange={handleChange}
-              placeholder="Ej: Matrices, Vectores, ..."
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Créditos Otorga</label>
+            <label style={styles.label}>Créditos Electivos</label>
             <input
               style={styles.input}
               type="number"
-              id="creditosQueOtorga"
-              name="creditosQueOtorga"
-              value={formData.creditosQueOtorga}
+              id="creditosElectivos"
+              name="creditosElectivos"
+              value={formData.creditosElectivos}
               onChange={handleChange}
               min="0"
+              placeholder="Ej: 12"
             />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Créditos Necesarios</label>
+            <label style={styles.label}>Fecha Entrada en Vigencia</label>
             <input
               style={styles.input}
-              type="number"
-              id="creditosNecesarios"
-              name="creditosNecesarios"
-              value={formData.creditosNecesarios}
+              type="date"
+              id="fechaEntradaEnVigencia"
+              name="fechaEntradaEnVigencia"
+              value={formData.fechaEntradaEnVigencia}
               onChange={handleChange}
-              min="0"
             />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Tipo</label>
-            <select
-              style={styles.select}
-              id="tipo"
-              name="tipo"
-              value={formData.tipo}
+            <label style={styles.label}>Fecha Vencimiento</label>
+            <input
+              style={styles.input}
+              type="date"
+              id="fechaVencimiento"
+              name="fechaVencimiento"
+              value={formData.fechaVencimiento}
               onChange={handleChange}
-            >
-              <option value="OBLIGATORIA">OBLIGATORIA</option>
-              <option value="OPTATIVA">OPTATIVA</option>
-            </select>
+            />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Correlativas</label>
+            <label style={styles.label}>Materias del Plan</label>
             <div style={styles.addCorrelativaContainer}>
               <input
                 style={styles.addCorrelativaInput}
                 type="text"
-                value={newCorrelativa}
-                onChange={(e) => setNewCorrelativa(e.target.value)}
-                placeholder="Ej: MAT100"
+                value={newMateria}
+                onChange={(e) => setNewMateria(e.target.value)}
+                placeholder="Ej: MAT101"
               />
               <button 
                 style={styles.addCorrelativaButton}
                 type="button" 
-                onClick={handleAddCorrelativa}
+                onClick={handleAddMateria}
               >
                 <span style={iconStyles.plus}>+</span>
               </button>
             </div>
             <div style={styles.correlativasContainer}>
-              {formData.codigosCorrelativas.map((correlativa, index) => (
+              {formData.codigosMaterias.map((materia, index) => (
                 <div key={index} style={styles.correlativaChip}>
-                  <span>{correlativa}</span>
+                  <span>{materia}</span>
                   <button 
                     style={styles.correlativaRemoveButton}
                     type="button" 
-                    onClick={() => handleRemoveCorrelativa(index)}
+                    onClick={() => handleRemoveMateria(index)}
                   >
                     <span style={iconStyles.x}>×</span>
                   </button>
@@ -206,7 +180,7 @@ const NuevaMateriaForm = () => {
 
         <div style={styles.buttonGroup}>
           <button
-            onClick={() => navigate('/GestionMaterias')}
+            onClick={() => navigate('/GestionarPlanesDeEstudio')}
             style={styles.cancelButton}
             type="button" 
           >
@@ -228,4 +202,4 @@ const NuevaMateriaForm = () => {
   );
 };
 
-export default NuevaMateriaForm;
+export default NuevoPlanDeEstudiosForm;

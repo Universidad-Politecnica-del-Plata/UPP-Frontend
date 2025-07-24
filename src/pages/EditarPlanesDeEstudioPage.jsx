@@ -4,47 +4,49 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { iconStyles } from '../styles/icon-styles';
-import { getMateria,updateMateria } from '../api/materiasApi';
+import { getPlanDeEstudios, updatePlanDeEstudios } from '../api/planDeEstudiosApi';
 
-
-
-
-const EditMateriaForm = () => {
+const EditPlanDeEstudiosForm = () => {
   const navigate = useNavigate();
-  const { codigoDeMateria } = useParams(); 
+  const { codigo } = useParams(); 
   const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
-    codigoDeMateria: '',
-    nombre: '',
-    contenidos: '',
-    creditosQueOtorga: '',
-    creditosNecesarios: '',
-    tipo: 'OBLIGATORIA',
-    codigosCorrelativas: []
+    codigoDePlanDeEstudios: '',
+    creditosElectivos: '',
+    fechaEntradaEnVigencia: '',
+    fechaVencimiento: '',
+    codigosMaterias: []
   });
 
-  const [newCorrelativa, setNewCorrelativa] = useState('');
+  const [newMateria, setNewMateria] = useState('');
   const { notification, showNotification, closeNotification } = useNotification();
 
-  
   useEffect(() => {
-    const fetchMateria = async () => {
+    const fetchPlanDeEstudios = async () => {
       try {
         setIsLoading(true);
-        const response = await getMateria(codigoDeMateria);
-        setFormData(response.data);
+        const response = await getPlanDeEstudios(codigo);
+        const data = response.data;
+        
+        setFormData({
+          codigoDePlanDeEstudios: data.codigoDePlanDeEstudios,
+          creditosElectivos: data.creditosElectivos,
+          fechaEntradaEnVigencia: data.fechaEntradaEnVigencia ? data.fechaEntradaEnVigencia.split('T')[0] : '',
+          fechaVencimiento: data.fechaVencimiento ? data.fechaVencimiento.split('T')[0] : '',
+          codigosMaterias: data.codigosMaterias || []
+        });
         setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching materia:', error);
-        showNotification('error', 'Error al cargar datos de la materia');
+        console.error('Error fetching plan de estudios:', error);
+        showNotification('error', 'Error al cargar datos del plan de estudios');
         setIsLoading(false);
       }
     };
 
-    if (codigoDeMateria) {
-      fetchMateria();
+    if (codigo) {
+      fetchPlanDeEstudios();
     }
-  }, [codigoDeMateria]);
+  }, [codigo]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,23 +56,24 @@ const EditMateriaForm = () => {
     }));
   };
 
-  const handleAddCorrelativa = () => {
-    if (newCorrelativa.trim() !== '') {
+  const handleAddMateria = () => {
+    if (newMateria.trim() !== '') {
       setFormData(prevState => ({
         ...prevState,
-        codigosCorrelativas: [...prevState.codigosCorrelativas, newCorrelativa.trim()]
+        codigosMaterias: [...prevState.codigosMaterias, newMateria.trim()]
       }));
-      setNewCorrelativa('');
+      setNewMateria('');
     }
   };
 
-  const handleRemoveCorrelativa = (index) => {
+  const handleRemoveMateria = (index) => {
     setFormData(prevState => ({
       ...prevState,
-      codigosCorrelativas: prevState.codigosCorrelativas.filter((_, i) => i !== index)
+      codigosMaterias: prevState.codigosMaterias.filter((_, i) => i !== index)
     }));
   };
-   const token = localStorage.getItem('authToken');
+
+  const token = localStorage.getItem('authToken');
         
   if (!token) {
     showNotification('error', "No se encontró token de autenticación. Por favor, inicie sesión nuevamente.");
@@ -79,15 +82,15 @@ const EditMateriaForm = () => {
 
   const handleSubmit = async () => {
     try {
-      console.log('Form submitted:', `${process.env.REACT_APP_API_ENDPOINT}/materias/${codigoDeMateria}`, formData);
+      console.log('Form submitted:', `${process.env.REACT_APP_API_ENDPOINT}/planDeEstudios/${codigo}`, formData);
 
-      const response = await updateMateria(codigoDeMateria,formData);
+      const response = await updatePlanDeEstudios(codigo, formData);
 
       console.log('Response:', response.data);
-      showNotification('success', 'Materia actualizada exitosamente');
+      showNotification('success', 'Plan de estudios actualizado exitosamente');
     } catch (error) {
-      console.error('Error updating materia:', error);
-      const errorMessage = error.response?.data?.message || 'Error al actualizar la materia';
+      console.error('Error updating plan de estudios:', error);
+      const errorMessage = error.response?.data?.message || 'Error al actualizar el plan de estudios';
       showNotification('error', errorMessage);
     }
   };
@@ -95,7 +98,7 @@ const EditMateriaForm = () => {
   if (isLoading) {
     return (
       <div style={styles.container}>
-        <div style={styles.loadingIndicator}>Cargando datos de la materia...</div>
+        <div style={styles.loadingIndicator}>Cargando datos del plan de estudios...</div>
       </div>
     );
   }
@@ -110,15 +113,14 @@ const EditMateriaForm = () => {
       onClose={closeNotification}
     />
 
-
       <div style={styles.header}>
-        <button style={styles.headerButton} onClick={() => navigate('/GestionMaterias')}>
+        <button style={styles.headerButton} onClick={() => navigate('/GestionPlanesDeEstudio')}>
           <span style={iconStyles.arrowLeft}>←</span>
-          <span style={styles.headerButtonText}>Volver a Gestión de Materias</span>
+          <span style={styles.headerButtonText}>Volver a Gestión de Planes de Estudio</span>
         </button>
       </div>
 
-      <h1 style={styles.heading}>Editar Materia</h1>
+      <h1 style={styles.heading}>Editar Plan de Estudios</h1>
 
       <div style={styles.formContainer}>
         <div style={styles.formGrid}>
@@ -127,105 +129,77 @@ const EditMateriaForm = () => {
             <input
               style={{...styles.input, backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
               type="text"
-              id="codigoDeMateria"
-              name="codigoDeMateria"
-              value={formData.codigoDeMateria}
+              id="codigoDePlanDeEstudios"
+              name="codigoDePlanDeEstudios"
+              value={formData.codigoDePlanDeEstudios}
               disabled
               readOnly
             />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Nombre</label>
-            <input
-              style={styles.input}
-              type="text"
-              id="nombre"
-              name="nombre"
-              value={formData.nombre}
-              onChange={handleChange}
-              placeholder="Ej: Álgebra Lineal"
-            />
-          </div>
-
-          <div style={styles.formGroupFullWidth}>
-            <label style={styles.label}>Contenidos</label>
-            <textarea
-              style={styles.textarea}
-              id="contenidos"
-              name="contenidos"
-              value={formData.contenidos}
-              onChange={handleChange}
-              placeholder="Ej: Matrices, Vectores, ..."
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Créditos Otorga</label>
+            <label style={styles.label}>Créditos Electivos</label>
             <input
               style={styles.input}
               type="number"
-              id="creditosQueOtorga"
-              name="creditosQueOtorga"
-              value={formData.creditosQueOtorga}
+              id="creditosElectivos"
+              name="creditosElectivos"
+              value={formData.creditosElectivos}
               onChange={handleChange}
               min="0"
             />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Créditos Necesarios</label>
+            <label style={styles.label}>Fecha de Entrada en Vigencia</label>
             <input
               style={styles.input}
-              type="number"
-              id="creditosNecesarios"
-              name="creditosNecesarios"
-              value={formData.creditosNecesarios}
+              type="date"
+              id="fechaEntradaEnVigencia"
+              name="fechaEntradaEnVigencia"
+              value={formData.fechaEntradaEnVigencia}
               onChange={handleChange}
-              min="0"
             />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Tipo</label>
-            <select
-              style={styles.select}
-              id="tipo"
-              name="tipo"
-              value={formData.tipo}
+            <label style={styles.label}>Fecha de Vencimiento</label>
+            <input
+              style={styles.input}
+              type="date"
+              id="fechaVencimiento"
+              name="fechaVencimiento"
+              value={formData.fechaVencimiento}
               onChange={handleChange}
-            >
-              <option value="OBLIGATORIA">OBLIGATORIA</option>
-              <option value="OPTATIVA">OPTATIVA</option>
-            </select>
+            />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Correlativas</label>
+            <label style={styles.label}>Materias</label>
             <div style={styles.addCorrelativaContainer}>
               <input
                 style={styles.addCorrelativaInput}
                 type="text"
-                value={newCorrelativa}
-                onChange={(e) => setNewCorrelativa(e.target.value)}
+                value={newMateria}
+                onChange={(e) => setNewMateria(e.target.value)}
                 placeholder="Ej: MAT100"
               />
               <button 
                 style={styles.addCorrelativaButton}
                 type="button" 
-                onClick={handleAddCorrelativa}
+                onClick={handleAddMateria}
               >
                 <span style={iconStyles.plus}>+</span>
               </button>
             </div>
             <div style={styles.correlativasContainer}>
-              {formData.codigosCorrelativas.map((correlativa, index) => (
+              {formData.codigosMaterias.map((materia, index) => (
                 <div key={index} style={styles.correlativaChip}>
-                  <span>{correlativa}</span>
+                  <span>{materia}</span>
                   <button 
                     style={styles.correlativaRemoveButton}
                     type="button" 
-                    onClick={() => handleRemoveCorrelativa(index)}
+                    onClick={() => handleRemoveMateria(index)}
                   >
                     <span style={iconStyles.x}>×</span>
                   </button>
@@ -237,7 +211,7 @@ const EditMateriaForm = () => {
 
         <div style={styles.buttonGroup}>
           <button
-            onClick={() => navigate('/GestionMaterias')}
+            onClick={() => navigate('/GestionPlanesDeEstudio')}
             style={styles.cancelButton}
             type="button" 
           >
@@ -259,4 +233,4 @@ const EditMateriaForm = () => {
   );
 };
 
-export default EditMateriaForm;
+export default EditPlanDeEstudiosForm;
