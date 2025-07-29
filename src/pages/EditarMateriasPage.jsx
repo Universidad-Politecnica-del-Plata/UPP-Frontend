@@ -247,15 +247,15 @@ const EditMateriaForm = () => {
             <label style={styles.label}>Plan de Estudios</label>
             <select
               style={styles.select}
-              id="codigoPlanDeEstudios"
-              name="codigoPlanDeEstudios"
+              id="codigoDePlanDeEstudios"
+              name="codigoDePlanDeEstudios"
               value={formData.codigoPlanDeEstudios}
               onChange={handleChange}
             >
               <option value="">Seleccionar plan de estudios</option>
               {planesDeEstudio.map(plan => (
-                <option key={plan.codigo} value={plan.codigo}>
-                  {plan.codigo} - {plan.nombre}
+                <option key={plan.codigoDePlanDeEstudios} value={plan.codigoDePlanDeEstudios}>
+                  {plan.codigoDePlanDeEstudios}
                 </option>
               ))}
             </select>
