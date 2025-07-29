@@ -243,23 +243,6 @@ const EditMateriaForm = () => {
             />
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Plan de Estudios</label>
-            <select
-              style={styles.select}
-              id="codigoDePlanDeEstudios"
-              name="codigoDePlanDeEstudios"
-              value={formData.codigoPlanDeEstudios}
-              onChange={handleChange}
-            >
-              <option value="">Seleccionar plan de estudios</option>
-              {planesDeEstudio.map(plan => (
-                <option key={plan.codigoDePlanDeEstudios} value={plan.codigoDePlanDeEstudios}>
-                  {plan.codigoDePlanDeEstudios}
-                </option>
-              ))}
-            </select>
-          </div>
 
           <div style={styles.formGroupFullWidth}>
             <label style={styles.label}>Correlativas</label>

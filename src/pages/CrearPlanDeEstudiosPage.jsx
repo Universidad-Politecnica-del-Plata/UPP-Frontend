@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {styles} from '../styles/upp-style'
 import { useNavigate } from 'react-router-dom';
 import {iconStyles} from '../styles/icon-styles'
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { createPlanDeEstudios } from '../api/planDeEstudiosApi';
+import { getTodasMaterias } from '../api/materiasApi';
 
 const NuevoPlanDeEstudiosForm = () => {
   const navigate = useNavigate();
@@ -16,8 +17,26 @@ const NuevoPlanDeEstudiosForm = () => {
     codigosMaterias: []
   });
 
-  const [newMateria, setNewMateria] = useState('');
+  const [materiasDisponibles, setMateriasDisponibles] = useState([]);
   const { notification, showNotification, closeNotification } = useNotification();
+
+  useEffect(() => {
+    const fetchMaterias = async () => {
+      try {
+        const response = await getTodasMaterias();
+        // Filtrar materias sin plan asignado o del plan actual
+        const materiasSinPlan = response.data.filter(
+          materia => !materia.codigoPlanDeEstudios || materia.codigoPlanDeEstudios === ''
+        );
+        setMateriasDisponibles(materiasSinPlan);
+      } catch (error) {
+        console.error('Error fetching materias:', error);
+        showNotification('error', 'Error al cargar materias disponibles');
+      }
+    };
+
+    fetchMaterias();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,20 +46,11 @@ const NuevoPlanDeEstudiosForm = () => {
     }));
   };
 
-  const handleAddMateria = () => {
-    if (newMateria.trim() !== '') {
-      setFormData(prevState => ({
-        ...prevState,
-        codigosMaterias: [...prevState.codigosMaterias, newMateria.trim()]
-      }));
-      setNewMateria('');
-    }
-  };
-
-  const handleRemoveMateria = (index) => {
+  const handleMateriasChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
     setFormData(prevState => ({
       ...prevState,
-      codigosMaterias: prevState.codigosMaterias.filter((_, i) => i !== index)
+      codigosMaterias: selectedOptions
     }));
   };
 
@@ -143,38 +153,25 @@ const NuevoPlanDeEstudiosForm = () => {
             />
           </div>
 
-          <div style={styles.formGroup}>
+          <div style={styles.formGroupFullWidth}>
             <label style={styles.label}>Materias del Plan</label>
-            <div style={styles.addCorrelativaContainer}>
-              <input
-                style={styles.addCorrelativaInput}
-                type="text"
-                value={newMateria}
-                onChange={(e) => setNewMateria(e.target.value)}
-                placeholder="Ej: MAT101"
-              />
-              <button 
-                style={styles.addCorrelativaButton}
-                type="button" 
-                onClick={handleAddMateria}
-              >
-                <span style={iconStyles.plus}>+</span>
-              </button>
-            </div>
-            <div style={styles.correlativasContainer}>
-              {formData.codigosMaterias.map((materia, index) => (
-                <div key={index} style={styles.correlativaChip}>
-                  <span>{materia}</span>
-                  <button 
-                    style={styles.correlativaRemoveButton}
-                    type="button" 
-                    onClick={() => handleRemoveMateria(index)}
-                  >
-                    <span style={iconStyles.x}>×</span>
-                  </button>
-                </div>
+            <select
+              style={{...styles.select, height: '120px'}}
+              multiple
+              id="codigosMaterias"
+              name="codigosMaterias"
+              value={formData.codigosMaterias}
+              onChange={handleMateriasChange}
+            >
+              {materiasDisponibles.map(materia => (
+                <option key={materia.codigoDeMateria} value={materia.codigoDeMateria}>
+                  {materia.codigoDeMateria} - {materia.nombre}
+                </option>
               ))}
-            </div>
+            </select>
+            <small style={{color: '#666', fontSize: '12px', marginTop: '4px', display: 'block'}}>
+              Solo se muestran materias sin plan asignado o del plan actual.
+            </small>
           </div>
         </div>
 

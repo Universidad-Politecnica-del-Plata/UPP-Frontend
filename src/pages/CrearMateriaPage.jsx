@@ -212,24 +212,6 @@ const NuevaMateriaForm = () => {
             />
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Plan de Estudios</label>
-            <select
-              style={styles.select}
-              id="codigoPlanDeEstudios"
-              name="codigoPlanDeEstudios"
-              value={formData.codigoPlanDeEstudios}
-              onChange={handleChange}
-            >
-              <option value="">Seleccionar plan de estudios</option>
-              {planesDeEstudio.map(plan => (
-                <option key={plan.codigo} value={plan.codigo}>
-                  {plan.codigo} - {plan.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <div style={styles.formGroupFullWidth}>
             <label style={styles.label}>Correlativas</label>
             <select
