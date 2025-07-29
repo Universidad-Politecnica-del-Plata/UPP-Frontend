@@ -280,7 +280,7 @@ const EditMateriaForm = () => {
               ))}
             </select>
             <small style={{color: '#666', fontSize: '12px', marginTop: '4px', display: 'block'}}>
-              Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples materias
+              Sólo se pueden elegir materias dentro del mismo plan de estudios.
             </small>
           </div>
         </div>
