@@ -186,6 +186,8 @@ export default function MateriasPage() {
                 <th style={styles.tableHeadCell}>Créditos Otorga</th>
                 <th style={styles.tableHeadCell}>Créditos Necesarios</th>
                 <th style={styles.tableHeadCell}>Tipo</th>
+                <th style={styles.tableHeadCell}>Cuatrimestre</th>
+                <th style={styles.tableHeadCell}>Plan de Estudios</th>
                 <th style={styles.tableHeadCell}>Correlativas</th>
                 <th style={styles.tableHeadCell}>Acciones</th>
               </tr>
@@ -211,6 +213,8 @@ export default function MateriasPage() {
                       {materia.tipo}
                     </span>
                   </td>
+                  <td style={styles.tableCell}>{materia.cuatrimestre || '-'}</td>
+                  <td style={styles.tableCell}>{materia.codigoPlanDeEstudios || '-'}</td>
                   <td style={styles.tableCell}>
                     <div>
                       {materia.codigosCorrelativas && Array.isArray(materia.codigosCorrelativas) ? 

@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {styles} from '../styles/upp-style'
 import { useNavigate } from 'react-router-dom';
 import {iconStyles} from '../styles/icon-styles'
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
-import { createMateria } from '../api/materiasApi';
+import { createMateria, getTodasMaterias } from '../api/materiasApi';
+import { getTodosPlanesDeEstudio } from '../api/planDeEstudiosApi';
 
 
 const NuevaMateriaForm = () => {
@@ -16,12 +17,49 @@ const NuevaMateriaForm = () => {
     creditosQueOtorga: '',
     creditosNecesarios: '',
     tipo: 'OBLIGATORIA',
+    cuatrimestre: '',
+    codigoPlanDeEstudios: '',
     codigosCorrelativas: []
   });
 
-  const [newCorrelativa, setNewCorrelativa] = useState('');
+  const [planesDeEstudio, setPlanesDeEstudio] = useState([]);
+  const [materiasDisponibles, setMateriasDisponibles] = useState([]);
   const { notification, showNotification, closeNotification } = useNotification();
 
+  useEffect(() => {
+    const fetchPlanesDeEstudio = async () => {
+      try {
+        const response = await getTodosPlanesDeEstudio();
+        setPlanesDeEstudio(response.data);
+      } catch (error) {
+        console.error('Error fetching planes de estudio:', error);
+        showNotification('error', 'Error al cargar planes de estudio');
+      }
+    };
+
+    fetchPlanesDeEstudio();
+  }, []);
+
+  useEffect(() => {
+    const fetchMateriasPorPlan = async () => {
+      if (formData.codigoPlanDeEstudios) {
+        try {
+          const response = await getTodasMaterias();
+          const materiasFiltradas = response.data.filter(
+            materia => materia.codigoPlanDeEstudios === formData.codigoPlanDeEstudios
+          );
+          setMateriasDisponibles(materiasFiltradas);
+        } catch (error) {
+          console.error('Error fetching materias:', error);
+          showNotification('error', 'Error al cargar materias disponibles');
+        }
+      } else {
+        setMateriasDisponibles([]);
+      }
+    };
+
+    fetchMateriasPorPlan();
+  }, [formData.codigoPlanDeEstudios]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,20 +69,11 @@ const NuevaMateriaForm = () => {
     }));
   };
 
-  const handleAddCorrelativa = () => {
-    if (newCorrelativa.trim() !== '') {
-      setFormData(prevState => ({
-        ...prevState,
-        codigosCorrelativas: [...prevState.codigosCorrelativas, newCorrelativa.trim()]
-      }));
-      setNewCorrelativa('');
-    }
-  };
-
-  const handleRemoveCorrelativa = (index) => {
+  const handleCorrelativaChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
     setFormData(prevState => ({
       ...prevState,
-      codigosCorrelativas: prevState.codigosCorrelativas.filter((_, i) => i !== index)
+      codigosCorrelativas: selectedOptions
     }));
   };
 
@@ -170,37 +199,58 @@ const NuevaMateriaForm = () => {
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Correlativas</label>
-            <div style={styles.addCorrelativaContainer}>
-              <input
-                style={styles.addCorrelativaInput}
-                type="text"
-                value={newCorrelativa}
-                onChange={(e) => setNewCorrelativa(e.target.value)}
-                placeholder="Ej: MAT100"
-              />
-              <button 
-                style={styles.addCorrelativaButton}
-                type="button" 
-                onClick={handleAddCorrelativa}
-              >
-                <span style={iconStyles.plus}>+</span>
-              </button>
-            </div>
-            <div style={styles.correlativasContainer}>
-              {formData.codigosCorrelativas.map((correlativa, index) => (
-                <div key={index} style={styles.correlativaChip}>
-                  <span>{correlativa}</span>
-                  <button 
-                    style={styles.correlativaRemoveButton}
-                    type="button" 
-                    onClick={() => handleRemoveCorrelativa(index)}
-                  >
-                    <span style={iconStyles.x}>×</span>
-                  </button>
-                </div>
+            <label style={styles.label}>Cuatrimestre</label>
+            <input
+              style={styles.input}
+              type="number"
+              id="cuatrimestre"
+              name="cuatrimestre"
+              value={formData.cuatrimestre}
+              onChange={handleChange}
+              min="1"
+              placeholder="Ej: 1"
+            />
+          </div>
+
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Plan de Estudios</label>
+            <select
+              style={styles.select}
+              id="codigoPlanDeEstudios"
+              name="codigoPlanDeEstudios"
+              value={formData.codigoPlanDeEstudios}
+              onChange={handleChange}
+            >
+              <option value="">Seleccionar plan de estudios</option>
+              {planesDeEstudio.map(plan => (
+                <option key={plan.codigo} value={plan.codigo}>
+                  {plan.codigo} - {plan.nombre}
+                </option>
               ))}
-            </div>
+            </select>
+          </div>
+
+          <div style={styles.formGroupFullWidth}>
+            <label style={styles.label}>Correlativas</label>
+            <select
+              style={{...styles.select, height: '120px'}}
+              multiple
+              id="codigosCorrelativas"
+              name="codigosCorrelativas"
+              value={formData.codigosCorrelativas}
+              onChange={handleCorrelativaChange}
+            >
+              {materiasDisponibles
+                .filter(materia => materia.codigoDeMateria !== formData.codigoDeMateria)
+                .map(materia => (
+                <option key={materia.codigoDeMateria} value={materia.codigoDeMateria}>
+                  {materia.codigoDeMateria} - {materia.nombre}
+                </option>
+              ))}
+            </select>
+            <small style={{color: '#666', fontSize: '12px', marginTop: '4px', display: 'block'}}>
+              Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples materias
+            </small>
           </div>
         </div>
 
