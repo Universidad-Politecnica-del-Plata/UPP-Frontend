@@ -8,6 +8,8 @@ import EditarMateriaPage from "./pages/EditarMateriasPage.jsx";
 import PlanesDeEstudioPage from "./pages/PlanesDeEstudioPage.jsx";
 import CrearPlanDeEstudiosPage from "./pages/CrearPlanDeEstudiosPage.jsx";
 import EditarPlanesDeEstudioPage from "./pages/EditarPlanesDeEstudioPage.jsx";
+import CarrerasPage from "./pages/CarrerasPage.jsx";
+import CrearCarreraPage from "./pages/CrearCarreraPage.jsx";
 
 function App() {
   return (
@@ -40,6 +42,12 @@ function App() {
             path="/EditarPlanDeEstudios/:codigo"
             element={<EditarPlanesDeEstudioPage />}
           />
+          <Route path="/GestionCarreras">
+            <Route index element={<CarrerasPage />} />
+          </Route>
+          <Route path="/CrearCarrera">
+            <Route index element={<CrearCarreraPage />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </>
