@@ -24,7 +24,11 @@ const NuevaCarreraForm = () => {
     const fetchPlanesDeEstudio = async () => {
       try {
         const response = await getTodosPlanesDeEstudio();
-        setPlanesDeEstudioDisponibles(response.data);
+        // Filtrar planes de estudio sin carrera asignada
+        const planesSinCarrera = response.data.filter(
+          plan => !plan.codigoCarrera || plan.codigoCarrera === '' || plan.codigoCarrera === null
+        );
+        setPlanesDeEstudioDisponibles(planesSinCarrera);
       } catch (error) {
         console.error('Error fetching planes de estudio:', error);
         showNotification('error', 'Error al cargar planes de estudio disponibles');
@@ -153,14 +157,18 @@ const NuevaCarreraForm = () => {
               value={formData.codigosPlanesDeEstudio}
               onChange={handlePlanesDeEstudioChange}
             >
-              {planesDeEstudioDisponibles.map(plan => (
-                <option key={plan.codigoDePlanDeEstudios} value={plan.codigoDePlanDeEstudios}>
-                  {plan.codigoDePlanDeEstudios}
-                </option>
-              ))}
+              {planesDeEstudioDisponibles.length === 0 ? (
+                <option disabled>No hay planes de estudio disponibles para asignar</option>
+              ) : (
+                planesDeEstudioDisponibles.map(plan => (
+                  <option key={plan.codigoDePlanDeEstudios} value={plan.codigoDePlanDeEstudios}>
+                    {plan.codigoDePlanDeEstudios}
+                  </option>
+                ))
+              )}
             </select>
             <small style={{color: '#666', fontSize: '12px', marginTop: '4px', display: 'block'}}>
-              
+              Solo se muestran planes de estudio sin carrera asignada
             </small>
           </div>
         </div>

@@ -163,11 +163,15 @@ const NuevoPlanDeEstudiosForm = () => {
               value={formData.codigosMaterias}
               onChange={handleMateriasChange}
             >
-              {materiasDisponibles.map(materia => (
-                <option key={materia.codigoDeMateria} value={materia.codigoDeMateria}>
-                  {materia.codigoDeMateria} - {materia.nombre}
-                </option>
-              ))}
+              {materiasDisponibles.length === 0 ? (
+                <option disabled>No hay materias disponibles para asignar</option>
+              ) : (
+                materiasDisponibles.map(materia => (
+                  <option key={materia.codigoDeMateria} value={materia.codigoDeMateria}>
+                    {materia.codigoDeMateria} - {materia.nombre}
+                  </option>
+                ))
+              )}
             </select>
             <small style={{color: '#666', fontSize: '12px', marginTop: '4px', display: 'block'}}>
               Solo se muestran materias sin plan asignado o del plan actual.

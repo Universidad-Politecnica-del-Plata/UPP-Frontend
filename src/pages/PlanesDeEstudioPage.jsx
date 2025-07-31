@@ -90,6 +90,7 @@ export default function PlanesDeEstudioPage() {
     const matchesSearch = 
       searchTerm === '' || 
       plan.codigoDePlanDeEstudios.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (plan.codigoCarrera && plan.codigoCarrera.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (plan.codigosMaterias && Array.isArray(plan.codigosMaterias) && 
         plan.codigosMaterias.some(codigo => codigo.toLowerCase().includes(searchTerm.toLowerCase())));
     
@@ -118,7 +119,7 @@ export default function PlanesDeEstudioPage() {
           <label style={styles.label}>Buscar</label>
           <input
             type="text"
-            placeholder="código de plan o código de materia"
+            placeholder="código de plan, código de materia o carrera"
             style={styles.searchInput}
             value={searchTerm}
             onChange={handleSearchChange}
@@ -146,6 +147,7 @@ export default function PlanesDeEstudioPage() {
                 <th style={styles.tableHeadCell}>Créditos Obligatorios</th>
                 <th style={styles.tableHeadCell}>Fecha Entrada en Vigencia</th>
                 <th style={styles.tableHeadCell}>Fecha Vencimiento</th>
+                <th style={styles.tableHeadCell}>Carrera</th>
                 <th style={styles.tableHeadCell}>Materias</th>
                 <th style={styles.tableHeadCell}>Acciones</th>
               </tr>
@@ -158,6 +160,7 @@ export default function PlanesDeEstudioPage() {
                   <td style={styles.tableCell}>{plan.creditosObligatorios}</td>
                   <td style={styles.tableCell}>{formatDate(plan.fechaEntradaEnVigencia)}</td>
                   <td style={styles.tableCell}>{formatDate(plan.fechaVencimiento)}</td>
+                  <td style={styles.tableCell}>{plan.codigoCarrera || '-'}</td>
                   <td style={styles.tableCell}>
                     <div>
                       {plan.codigosMaterias && Array.isArray(plan.codigosMaterias) ? 
