@@ -42,7 +42,8 @@ const EditCarreraForm = () => {
     if (codigo) {
       fetchPlanesDeEstudio();
     }
-  }, [codigo, showNotification]);
+    // eslint-disable-next-line
+  }, [codigo]);
 
   useEffect(() => {
     const fetchCarrera = async () => {
@@ -69,7 +70,8 @@ const EditCarreraForm = () => {
     if (codigo) {
       fetchCarrera();
     }
-  }, [codigo, showNotification]);
+    // eslint-disable-next-line
+  }, [codigo]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
