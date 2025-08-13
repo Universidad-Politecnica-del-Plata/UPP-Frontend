@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { postLogin } from '../api/loginApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -48,11 +49,8 @@ const LoginPage = () => {
     } catch (error) {
       console.error('Login error:', error);
       
-      if (error.response?.status === 401) {
-        showNotification('error', 'Credenciales inválidas');
-      } else {
-        showNotification('error', 'Error al iniciar sesión. Intente nuevamente.');
-      }
+      const errorMessage = getErrorMessage(error, 'Error al iniciar sesión. Intente nuevamente.');
+      showNotification('error', errorMessage);
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,7 @@ import {confirmationModalStyles} from '../styles/confirm-modal-styles'
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getTodosPlanesDeEstudio, deletePlanDeEstudios } from '../api/planDeEstudiosApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 export default function PlanesDeEstudioPage() {
   const [planesDeEstudio, setPlanesDeEstudio] = useState([]);
@@ -34,13 +35,11 @@ export default function PlanesDeEstudioPage() {
       } catch (err) {
         console.error("Error al cargar planes de estudio:", err);
         
+        const errorMessage = getErrorMessage(err, "Error al cargar los planes de estudio.");
+        showNotification('error', errorMessage);
+        
         if (err.response?.status === 401) {
-          showNotification('error', "Sesión expirada. Por favor, inicie sesión nuevamente.");
           localStorage.removeItem('authToken');
-        } else if (err.response?.status === 403) {
-          showNotification('error', "No tiene permisos para acceder a esta información.");
-        } else {
-          showNotification('error', "Error al cargar los planes de estudio.");
         }
       } finally {
         setLoading(false);
@@ -75,7 +74,14 @@ export default function PlanesDeEstudioPage() {
 
     } catch (err) {
       console.error("Error al eliminar plan de estudio:", err);
-      showNotification('error', "Error al eliminar el plan de estudio.");
+      
+      const errorMessage = getErrorMessage(err, "Error al eliminar el plan de estudio.");
+      showNotification('error', errorMessage);
+      
+      if (err.response?.status === 401) {
+        localStorage.removeItem('authToken');
+      }
+      
       setConfirmDelete(null);
     }
   };

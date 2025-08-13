@@ -6,6 +6,7 @@ import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { createMateria, getTodasMaterias } from '../api/materiasApi';
 import { getTodosPlanesDeEstudio } from '../api/planDeEstudiosApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 
 const NuevaMateriaForm = () => {
@@ -33,7 +34,8 @@ const NuevaMateriaForm = () => {
         setPlanesDeEstudio(response.data);
       } catch (error) {
         console.error('Error fetching planes de estudio:', error);
-        showNotification('error', 'Error al cargar planes de estudio');
+        const errorMessage = getErrorMessage(error, 'Error al cargar planes de estudio');
+        showNotification('error', errorMessage);
       }
     };
 
@@ -51,7 +53,8 @@ const NuevaMateriaForm = () => {
           setMateriasDisponibles(materiasFiltradas);
         } catch (error) {
           console.error('Error fetching materias:', error);
-          showNotification('error', 'Error al cargar materias disponibles');
+          const errorMessage = getErrorMessage(error, 'Error al cargar materias disponibles');
+          showNotification('error', errorMessage);
         }
       } else {
         setMateriasDisponibles([]);
@@ -93,7 +96,7 @@ const NuevaMateriaForm = () => {
       showNotification('success', 'Materia creada exitosamente');
     } catch (error) {
       console.error('Error submitting form:', error);
-      const errorMessage = error.response?.data?.message || 'Error al crear la materia';
+      const errorMessage = getErrorMessage(error, 'Error al crear la materia');
       showNotification('error', errorMessage);
     }
   };

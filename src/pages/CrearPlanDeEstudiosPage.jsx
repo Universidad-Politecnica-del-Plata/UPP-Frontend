@@ -6,6 +6,7 @@ import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { createPlanDeEstudios } from '../api/planDeEstudiosApi';
 import { getTodasMaterias } from '../api/materiasApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 const NuevoPlanDeEstudiosForm = () => {
   const navigate = useNavigate();
@@ -31,7 +32,13 @@ const NuevoPlanDeEstudiosForm = () => {
         setMateriasDisponibles(materiasSinPlan);
       } catch (error) {
         console.error('Error fetching materias:', error);
-        showNotification('error', 'Error al cargar materias disponibles');
+        
+        const errorMessage = getErrorMessage(error, 'Error al cargar materias disponibles');
+        showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
       }
     };
 
@@ -76,8 +83,13 @@ const NuevoPlanDeEstudiosForm = () => {
       showNotification('success', 'Plan de estudio creado exitosamente');
     } catch (error) {
       console.error('Error submitting form:', error);
-      const errorMessage = error.response?.data?.message || 'Error al crear el plan de estudio';
+      
+      const errorMessage = getErrorMessage(error, 'Error al crear el plan de estudio');
       showNotification('error', errorMessage);
+      
+      if (error.response?.status === 401) {
+        localStorage.removeItem('authToken');
+      }
     }
   };
 

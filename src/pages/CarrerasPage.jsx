@@ -5,6 +5,7 @@ import {confirmationModalStyles} from '../styles/confirm-modal-styles'
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getTodasCarreras, deleteCarrera } from '../api/carrerasApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 export default function CarrerasPage() {
   const [carreras, setCarreras] = useState([]);
@@ -34,13 +35,11 @@ export default function CarrerasPage() {
       } catch (err) {
         console.error("Error al cargar carreras:", err);
         
+        const errorMessage = getErrorMessage(err, "Error al cargar las carreras.");
+        showNotification('error', errorMessage);
+        
         if (err.response?.status === 401) {
-          showNotification('error', "Sesión expirada. Por favor, inicie sesión nuevamente.");
           localStorage.removeItem('authToken');
-        } else if (err.response?.status === 403) {
-          showNotification('error', "No tiene permisos para acceder a esta información.");
-        } else {
-          showNotification('error', "Error al cargar las carreras.");
         }
       } finally {
         setLoading(false);
@@ -75,7 +74,14 @@ export default function CarrerasPage() {
 
     } catch (err) {
       console.error("Error al eliminar carrera:", err);
-      showNotification('error', "Error al eliminar la carrera.");
+      
+      const errorMessage = getErrorMessage(err, "Error al eliminar la carrera.");
+      showNotification('error', errorMessage);
+      
+      if (err.response?.status === 401) {
+        localStorage.removeItem('authToken');
+      }
+      
       setConfirmDelete(null);
     }
   };

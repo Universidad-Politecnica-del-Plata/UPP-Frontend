@@ -5,6 +5,7 @@ import {confirmationModalStyles} from '../styles/confirm-modal-styles'
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getTodasMaterias, deleteMateria } from '../api/materiasApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 
 const tipoOptions = ["Todos los tipos", "OBLIGATORIA", "OPTATIVA"];
@@ -43,13 +44,11 @@ export default function MateriasPage() {
       } catch (err) {
         console.error("Error al cargar materias:", err);
         
+        const errorMessage = getErrorMessage(err, "Error al cargar las materias.");
+        showNotification('error', errorMessage);
+        
         if (err.response?.status === 401) {
-          showNotification('error', "Sesión expirada. Por favor, inicie sesión nuevamente.");
           localStorage.removeItem('authToken');
-        } else if (err.response?.status === 403) {
-          showNotification('error', "No tiene permisos para acceder a esta información.");
-        } else {
-          showNotification('error', "Error al cargar las materias.");
         }
       } finally {
         setLoading(false);
@@ -91,7 +90,8 @@ export default function MateriasPage() {
 
     } catch (err) {
       console.error("Error al eliminar materia:", err);
-      showNotification('error', "Error al eliminar la materia.");
+      const errorMessage = getErrorMessage(err, "Error al eliminar la materia.");
+      showNotification('error', errorMessage);
       setConfirmDelete(null);
     }
   };

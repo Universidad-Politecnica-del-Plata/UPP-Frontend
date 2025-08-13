@@ -6,6 +6,7 @@ import { useNotification } from '../hooks/useNotification';
 import { iconStyles } from '../styles/icon-styles';
 import { getCarrera, updateCarrera } from '../api/carrerasApi';
 import { getTodosPlanesDeEstudio } from '../api/planDeEstudiosApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 const EditCarreraForm = () => {
   const navigate = useNavigate();
@@ -35,7 +36,13 @@ const EditCarreraForm = () => {
         setPlanesDeEstudioDisponibles(planesValidos);
       } catch (error) {
         console.error('Error fetching planes de estudio:', error);
-        showNotification('error', 'Error al cargar planes de estudio disponibles');
+        
+        const errorMessage = getErrorMessage(error, 'Error al cargar planes de estudio disponibles');
+        showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
       }
     };
 
@@ -62,7 +69,14 @@ const EditCarreraForm = () => {
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching carrera:', error);
-        showNotification('error', 'Error al cargar datos de la carrera');
+        
+        const errorMessage = getErrorMessage(error, 'Error al cargar datos de la carrera');
+        showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
+        
         setIsLoading(false);
       }
     };
@@ -106,8 +120,13 @@ const EditCarreraForm = () => {
       showNotification('success', 'Carrera actualizada exitosamente');
     } catch (error) {
       console.error('Error updating carrera:', error);
-      const errorMessage = error.response?.data?.message || 'Error al actualizar la carrera';
+      
+      const errorMessage = getErrorMessage(error, 'Error al actualizar la carrera');
       showNotification('error', errorMessage);
+      
+      if (error.response?.status === 401) {
+        localStorage.removeItem('authToken');
+      }
     }
   };
 

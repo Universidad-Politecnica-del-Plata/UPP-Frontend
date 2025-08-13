@@ -6,6 +6,7 @@ import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { createCarrera } from '../api/carrerasApi';
 import { getTodosPlanesDeEstudio } from '../api/planDeEstudiosApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 const NuevaCarreraForm = () => {
   const navigate = useNavigate();
@@ -31,7 +32,13 @@ const NuevaCarreraForm = () => {
         setPlanesDeEstudioDisponibles(planesSinCarrera);
       } catch (error) {
         console.error('Error fetching planes de estudio:', error);
-        showNotification('error', 'Error al cargar planes de estudio disponibles');
+        
+        const errorMessage = getErrorMessage(error, 'Error al cargar planes de estudio disponibles');
+        showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
       }
     };
 
@@ -70,8 +77,13 @@ const NuevaCarreraForm = () => {
       showNotification('success', 'Carrera creada exitosamente');
     } catch (error) {
       console.error('Error submitting form:', error);
-      const errorMessage = error.response?.data?.message || 'Error al crear la carrera';
+      
+      const errorMessage = getErrorMessage(error, 'Error al crear la carrera');
       showNotification('error', errorMessage);
+      
+      if (error.response?.status === 401) {
+        localStorage.removeItem('authToken');
+      }
     }
   };
 

@@ -6,6 +6,7 @@ import { useNotification } from '../hooks/useNotification';
 import { iconStyles } from '../styles/icon-styles';
 import { getPlanDeEstudios, updatePlanDeEstudios } from '../api/planDeEstudiosApi';
 import { getTodasMaterias } from '../api/materiasApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 const EditPlanDeEstudiosForm = () => {
   const navigate = useNavigate();
@@ -35,7 +36,13 @@ const EditPlanDeEstudiosForm = () => {
         setMateriasDisponibles(materiasValidas);
       } catch (error) {
         console.error('Error fetching materias:', error);
-        showNotification('error', 'Error al cargar materias disponibles');
+        
+        const errorMessage = getErrorMessage(error, 'Error al cargar materias disponibles');
+        showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
       }
     };
 
@@ -61,7 +68,14 @@ const EditPlanDeEstudiosForm = () => {
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching plan de estudios:', error);
-        showNotification('error', 'Error al cargar datos del plan de estudios');
+        
+        const errorMessage = getErrorMessage(error, 'Error al cargar datos del plan de estudios');
+        showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
+        
         setIsLoading(false);
       }
     };
@@ -104,8 +118,13 @@ const EditPlanDeEstudiosForm = () => {
       showNotification('success', 'Plan de estudios actualizado exitosamente');
     } catch (error) {
       console.error('Error updating plan de estudios:', error);
-      const errorMessage = error.response?.data?.message || 'Error al actualizar el plan de estudios';
+      
+      const errorMessage = getErrorMessage(error, 'Error al actualizar el plan de estudios');
       showNotification('error', errorMessage);
+      
+      if (error.response?.status === 401) {
+        localStorage.removeItem('authToken');
+      }
     }
   };
 

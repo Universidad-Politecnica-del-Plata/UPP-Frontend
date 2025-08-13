@@ -6,6 +6,7 @@ import { useNotification } from '../hooks/useNotification';
 import { iconStyles } from '../styles/icon-styles';
 import { getMateria, updateMateria, getTodasMaterias } from '../api/materiasApi';
 import { getTodosPlanesDeEstudio } from '../api/planDeEstudiosApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 
 
@@ -37,7 +38,13 @@ const EditMateriaForm = () => {
         setPlanesDeEstudio(response.data);
       } catch (error) {
         console.error('Error fetching planes de estudio:', error);
-        showNotification('error', 'Error al cargar planes de estudio');
+        
+        const errorMessage = getErrorMessage(error, 'Error al cargar planes de estudio');
+        showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
       }
     };
 
@@ -55,7 +62,13 @@ const EditMateriaForm = () => {
           setMateriasDisponibles(materiasFiltradas);
         } catch (error) {
           console.error('Error fetching materias:', error);
-          showNotification('error', 'Error al cargar materias disponibles');
+          
+          const errorMessage = getErrorMessage(error, 'Error al cargar materias disponibles');
+          showNotification('error', errorMessage);
+          
+          if (error.response?.status === 401) {
+            localStorage.removeItem('authToken');
+          }
         }
       } else {
         setMateriasDisponibles([]);
@@ -74,7 +87,14 @@ const EditMateriaForm = () => {
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching materia:', error);
-        showNotification('error', 'Error al cargar datos de la materia');
+        
+        const errorMessage = getErrorMessage(error, 'Error al cargar datos de la materia');
+        showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
+        
         setIsLoading(false);
       }
     };
@@ -116,8 +136,13 @@ const EditMateriaForm = () => {
       showNotification('success', 'Materia actualizada exitosamente');
     } catch (error) {
       console.error('Error updating materia:', error);
-      const errorMessage = error.response?.data?.message || 'Error al actualizar la materia';
+      
+      const errorMessage = getErrorMessage(error, 'Error al actualizar la materia');
       showNotification('error', errorMessage);
+      
+      if (error.response?.status === 401) {
+        localStorage.removeItem('authToken');
+      }
     }
   };
 
