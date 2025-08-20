@@ -11,6 +11,8 @@ import EditarPlanesDeEstudioPage from "./pages/EditarPlanesDeEstudioPage.jsx";
 import CarrerasPage from "./pages/CarrerasPage.jsx";
 import CrearCarreraPage from "./pages/CrearCarreraPage.jsx";
 import EditarCarrerasPage from "./pages/EditarCarrerasPage.jsx";
+import AlumnosPage from "./pages/AlumnosPage.jsx";
+import CrearAlumno from "./pages/CrearAlumnoPage.jsx";
 
 function App() {
   return (
@@ -52,6 +54,13 @@ function App() {
           <Route
             path="/EditarCarrera/:codigo"
             element={<EditarCarrerasPage />}
+          />
+          <Route path="/GestionAlumnos">
+            <Route index element={<AlumnosPage />} />
+          </Route>
+          <Route
+            path="/CrearAlumno"
+            element={<CrearAlumno />}
           />
         </Routes>
       </BrowserRouter>
