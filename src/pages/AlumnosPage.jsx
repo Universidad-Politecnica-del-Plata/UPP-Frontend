@@ -4,7 +4,7 @@ import {styles} from '../styles/upp-style';
 import {confirmationModalStyles} from '../styles/confirm-modal-styles'
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
-import { getTodosAlumnos, deleteAlumno } from '../api/alumnosApi';
+import { getTodosLosAlumnosActivos, deleteAlumno } from '../api/alumnosApi';
 import { getErrorMessage } from '../utils/errorHandler';
 
 export default function AlumnosPage() {
@@ -30,7 +30,7 @@ export default function AlumnosPage() {
           return;
         }
         
-        const response = await getTodosAlumnos();
+        const response = await getTodosLosAlumnosActivos();
         setAlumnos(response.data);
       } catch (err) {
         console.error("Error al cargar alumnos:", err);

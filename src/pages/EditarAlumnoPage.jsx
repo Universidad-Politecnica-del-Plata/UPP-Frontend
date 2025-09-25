@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import {styles} from '../styles/upp-style'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {iconStyles} from '../styles/icon-styles'
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
-import { createAlumno } from '../api/alumnosApi';
+import { getAlumno, updateAlumno } from '../api/alumnosApi';
 import { getTodasCarreras } from '../api/carrerasApi';
 import { getTodosPlanesDeEstudio } from '../api/planDeEstudiosApi';
 import { getErrorMessage } from '../utils/errorHandler';
 
-const NuevoAlumnoForm = () => {
+const EditarAlumnoForm = () => {
   const navigate = useNavigate();
+  const { matricula } = useParams();
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
     matricula: '',
     nombre: '',
@@ -45,11 +47,55 @@ const NuevoAlumnoForm = () => {
         console.error('Error fetching data:', error);
         const errorMessage = getErrorMessage(error, 'Error al cargar datos');
         showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
       }
     };
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const fetchAlumno = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getAlumno(matricula);
+        const data = response.data;
+        
+        setFormData({
+          matricula: data.matricula,
+          nombre: data.nombre,
+          apellido: data.apellido,
+          dni: data.dni,
+          email: data.email,
+          direccion: data.direccion,
+          fechaNacimiento: data.fechaNacimiento,
+          fechaIngreso: data.fechaIngreso,
+          fechaEgreso: data.fechaEgreso,
+          telefonos: data.telefonos || [],
+          codigosCarreras: data.codigosCarreras || [],
+          codigosPlanesDeEstudio: data.codigosPlanesDeEstudio || []
+        });
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching alumno:', error);
+        const errorMessage = getErrorMessage(error, 'Error al cargar datos del alumno');
+        showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
+        
+        setIsLoading(false);
+      }
+    };
+
+    if (matricula) {
+      fetchAlumno();
+    }
+  }, [matricula]);
 
   useEffect(() => {
     if (formData.codigosCarreras.length > 0) {
@@ -129,17 +175,29 @@ const NuevoAlumnoForm = () => {
 
   const handleSubmit = async () => {
     try {
-      console.log('Form submitted:', process.env.REACT_APP_API_ENDPOINT + "/alumnos", formData);
+      console.log('Form submitted:', `${process.env.REACT_APP_API_ENDPOINT}/alumnos/${matricula}`, formData);
 
-      const response = await createAlumno(formData);
+      const response = await updateAlumno(matricula, formData);
       console.log('Response:', response.data);
-      showNotification('success', 'Alumno creado exitosamente');
+      showNotification('success', 'Alumno actualizado exitosamente');
     } catch (error) {
-      console.error('Error submitting form:', error);
-      const errorMessage = getErrorMessage(error, 'Error al crear el alumno');
+      console.error('Error updating alumno:', error);
+      const errorMessage = getErrorMessage(error, 'Error al actualizar el alumno');
       showNotification('error', errorMessage);
+      
+      if (error.response?.status === 401) {
+        localStorage.removeItem('authToken');
+      }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loadingIndicator}>Cargando datos del alumno...</div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>
@@ -158,10 +216,23 @@ const NuevoAlumnoForm = () => {
         </button>
       </div>
 
-      <h1 style={styles.heading}>Nuevo Alumno</h1>
+      <h1 style={styles.heading}>Editar Alumno</h1>
 
       <div style={styles.formContainer}>
         <div style={styles.formGrid}>
+
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Matrícula</label>
+            <input
+              style={{...styles.input, backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
+              type="text"
+              id="matricula"
+              name="matricula"
+              value={formData.matricula}
+              disabled
+              readOnly
+            />
+          </div>
 
           <div style={styles.formGroup}>
             <label style={styles.label}>Nombre</label>
@@ -382,7 +453,7 @@ const NuevoAlumnoForm = () => {
             <span style={styles.saveButtonIcon}>
               <span style={iconStyles.save}>💾</span>
             </span>
-            Guardar
+            Guardar Cambios
           </button>
         </div>
       </div>
@@ -390,4 +461,4 @@ const NuevoAlumnoForm = () => {
   );
 };
 
-export default NuevoAlumnoForm;
+export default EditarAlumnoForm;

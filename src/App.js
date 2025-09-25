@@ -13,6 +13,7 @@ import CrearCarreraPage from "./pages/CrearCarreraPage.jsx";
 import EditarCarrerasPage from "./pages/EditarCarrerasPage.jsx";
 import AlumnosPage from "./pages/AlumnosPage.jsx";
 import CrearAlumno from "./pages/CrearAlumnoPage.jsx";
+import EditarAlumnoPage from "./pages/EditarAlumnoPage.jsx";
 
 function App() {
   return (
@@ -61,6 +62,10 @@ function App() {
           <Route
             path="/CrearAlumno"
             element={<CrearAlumno />}
+          />
+          <Route
+            path="/EditarAlumno/:matricula"
+            element={<EditarAlumnoPage />}
           />
         </Routes>
       </BrowserRouter>
