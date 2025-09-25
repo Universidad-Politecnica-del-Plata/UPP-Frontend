@@ -1,5 +1,7 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import LoginPage from "./pages/LoginPage.jsx";
 import MateriasPage from "./pages/MateriasPage.jsx";
@@ -14,62 +16,97 @@ import EditarCarrerasPage from "./pages/EditarCarrerasPage.jsx";
 import AlumnosPage from "./pages/AlumnosPage.jsx";
 import CrearAlumno from "./pages/CrearAlumnoPage.jsx";
 import EditarAlumnoPage from "./pages/EditarAlumnoPage.jsx";
+import UnauthorizedPage from "./pages/UnauthorizedPage.jsx";
 
 function App() {
   return (
-    <>
+    <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/">
-            <Route index element={"home"} />
-          </Route>
-          <Route path="/login">
-            <Route index element={<LoginPage/>} />
-          </Route>
-          <Route path="/GestionMaterias">
-            <Route index element={<MateriasPage />} />
-          </Route>
-          <Route path="/CrearMateria">
-            <Route index element={<CrearMateriaPage />} />
-          </Route>
-          <Route
-            path="/EditarMateria/:codigoDeMateria"
-            element={<EditarMateriaPage />}
-          />
-          <Route path="/GestionPlanesDeEstudio">
-            <Route index element={<PlanesDeEstudioPage />} />
-          </Route>
-          <Route path="/CrearPlanDeEstudio">
-            <Route index element={<CrearPlanDeEstudiosPage />} />
-          </Route>
-          <Route
-            path="/EditarPlanDeEstudios/:codigo"
-            element={<EditarPlanesDeEstudioPage />}
-          />
-          <Route path="/GestionCarreras">
-            <Route index element={<CarrerasPage />} />
-          </Route>
-          <Route path="/CrearCarrera">
-            <Route index element={<CrearCarreraPage />} />
-          </Route>
-          <Route
-            path="/EditarCarrera/:codigo"
-            element={<EditarCarrerasPage />}
-          />
-          <Route path="/GestionAlumnos">
-            <Route index element={<AlumnosPage />} />
-          </Route>
-          <Route
-            path="/CrearAlumno"
-            element={<CrearAlumno />}
-          />
-          <Route
-            path="/EditarAlumno/:matricula"
-            element={<EditarAlumnoPage />}
-          />
+          <Route path="/" element={
+            <ProtectedRoute>
+              {"home"}
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/login" element={<LoginPage />} />
+          
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          
+          <Route path="/GestionMaterias" element={
+            <ProtectedRoute>
+              <MateriasPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/CrearMateria" element={
+            <ProtectedRoute>
+              <CrearMateriaPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/EditarMateria/:codigoDeMateria" element={
+            <ProtectedRoute>
+              <EditarMateriaPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/GestionPlanesDeEstudio" element={
+            <ProtectedRoute>
+              <PlanesDeEstudioPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/CrearPlanDeEstudio" element={
+            <ProtectedRoute>
+              <CrearPlanDeEstudiosPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/EditarPlanDeEstudios/:codigo" element={
+            <ProtectedRoute>
+              <EditarPlanesDeEstudioPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/GestionCarreras" element={
+            <ProtectedRoute>
+              <CarrerasPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/CrearCarrera" element={
+            <ProtectedRoute>
+              <CrearCarreraPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/EditarCarrera/:codigo" element={
+            <ProtectedRoute>
+              <EditarCarrerasPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/GestionAlumnos" element={
+            <ProtectedRoute>
+              <AlumnosPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/CrearAlumno" element={
+            <ProtectedRoute>
+              <CrearAlumno />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/EditarAlumno/:matricula" element={
+            <ProtectedRoute>
+              <EditarAlumnoPage />
+            </ProtectedRoute>
+          } />
         </Routes>
       </BrowserRouter>
-    </>
+    </AuthProvider>
   );
 }
 

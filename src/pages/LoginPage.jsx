@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { loginStyles } from '../styles/login-style';
 import { useNavigate } from 'react-router-dom';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { postLogin } from '../api/loginApi';
 import { getErrorMessage } from '../utils/errorHandler';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login, isAuthenticated, user } = useAuth();
   const [formData, setFormData] = useState({
     dni: '',
     password: ''
@@ -15,6 +17,19 @@ const LoginPage = () => {
   
   const { notification, showNotification, closeNotification } = useNotification();
   const [loading, setLoading] = useState(false);
+
+  // Redirigir si ya está autenticado
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      if (user?.roles?.includes('ROLE_GESTION_ACADEMICA')) {
+        navigate('/GestionMaterias');
+      } else if (user?.roles?.includes('ROLE_GESTION_ESTUDIANTIL')) {
+        navigate('/GestionAlumnos');
+      } else {
+        navigate('/GestionMaterias'); // Por defecto
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,11 +55,14 @@ const LoginPage = () => {
         });
 
       const token = response.data.token;
-      localStorage.setItem('authToken', token);
+      const loginSuccess = login(token);
       
-      console.log('Login successful, token stored:', token);
-      
-      navigate('/GestionMaterias');
+      if (loginSuccess) {
+        console.log('Login successful, token stored:', token);
+        navigate('/GestionMaterias');
+      } else {
+        showNotification('error', 'Error al procesar el token de autenticación');
+      }
       
     } catch (error) {
       console.error('Login error:', error);
