@@ -24,8 +24,22 @@ export const canAccessRoute = (userRoles, route) => {
     return true;
   }
 
+  // Primero intentar una coincidencia exacta
+  let requiredRoles = ROLE_PERMISSIONS[route];
+  
+  // Si no hay coincidencia exacta, buscar coincidencia por patrón
+  if (!requiredRoles) {
+    for (const [routePattern, roles] of Object.entries(ROLE_PERMISSIONS)) {
+      // Verificar si la ruta actual coincide con el patrón base
+      // Ej: /EditarCarrera/123 coincide con /EditarCarrera
+      if (route.startsWith(routePattern + '/') || route === routePattern) {
+        requiredRoles = roles;
+        break;
+      }
+    }
+  }
+
   // Si no hay roles definidos para la ruta, denegar acceso por defecto
-  const requiredRoles = ROLE_PERMISSIONS[route];
   if (!requiredRoles) {
     return false;
   }
