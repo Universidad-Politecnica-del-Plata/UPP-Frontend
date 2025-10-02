@@ -4,7 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { iconStyles } from '../styles/icon-styles';
-import { getMateria,updateMateria } from '../api/materiasApi';
+import { getMateria, updateMateria, getTodasMaterias } from '../api/materiasApi';
+import { getTodosPlanesDeEstudio } from '../api/planDeEstudiosApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 
 
@@ -20,12 +22,61 @@ const EditMateriaForm = () => {
     creditosQueOtorga: '',
     creditosNecesarios: '',
     tipo: 'OBLIGATORIA',
+    cuatrimestre: '',
+    codigoPlanDeEstudios: '',
     codigosCorrelativas: []
   });
 
-  const [newCorrelativa, setNewCorrelativa] = useState('');
+  const [planesDeEstudio, setPlanesDeEstudio] = useState([]);
+  const [materiasDisponibles, setMateriasDisponibles] = useState([]);
   const { notification, showNotification, closeNotification } = useNotification();
 
+  useEffect(() => {
+    const fetchPlanesDeEstudio = async () => {
+      try {
+        const response = await getTodosPlanesDeEstudio();
+        setPlanesDeEstudio(response.data);
+      } catch (error) {
+        console.error('Error fetching planes de estudio:', error);
+        
+        const errorMessage = getErrorMessage(error, 'Error al cargar planes de estudio');
+        showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
+      }
+    };
+
+    fetchPlanesDeEstudio();
+  }, []);
+
+  useEffect(() => {
+    const fetchMateriasPorPlan = async () => {
+      if (formData.codigoPlanDeEstudios) {
+        try {
+          const response = await getTodasMaterias();
+          const materiasFiltradas = response.data.filter(
+            materia => materia.codigoPlanDeEstudios === formData.codigoPlanDeEstudios
+          );
+          setMateriasDisponibles(materiasFiltradas);
+        } catch (error) {
+          console.error('Error fetching materias:', error);
+          
+          const errorMessage = getErrorMessage(error, 'Error al cargar materias disponibles');
+          showNotification('error', errorMessage);
+          
+          if (error.response?.status === 401) {
+            localStorage.removeItem('authToken');
+          }
+        }
+      } else {
+        setMateriasDisponibles([]);
+      }
+    };
+
+    fetchMateriasPorPlan();
+  }, [formData.codigoPlanDeEstudios]);
   
   useEffect(() => {
     const fetchMateria = async () => {
@@ -36,7 +87,14 @@ const EditMateriaForm = () => {
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching materia:', error);
-        showNotification('error', 'Error al cargar datos de la materia');
+        
+        const errorMessage = getErrorMessage(error, 'Error al cargar datos de la materia');
+        showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
+        
         setIsLoading(false);
       }
     };
@@ -54,20 +112,11 @@ const EditMateriaForm = () => {
     }));
   };
 
-  const handleAddCorrelativa = () => {
-    if (newCorrelativa.trim() !== '') {
-      setFormData(prevState => ({
-        ...prevState,
-        codigosCorrelativas: [...prevState.codigosCorrelativas, newCorrelativa.trim()]
-      }));
-      setNewCorrelativa('');
-    }
-  };
-
-  const handleRemoveCorrelativa = (index) => {
+  const handleCorrelativaChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
     setFormData(prevState => ({
       ...prevState,
-      codigosCorrelativas: prevState.codigosCorrelativas.filter((_, i) => i !== index)
+      codigosCorrelativas: selectedOptions
     }));
   };
    const token = localStorage.getItem('authToken');
@@ -87,8 +136,13 @@ const EditMateriaForm = () => {
       showNotification('success', 'Materia actualizada exitosamente');
     } catch (error) {
       console.error('Error updating materia:', error);
-      const errorMessage = error.response?.data?.message || 'Error al actualizar la materia';
+      
+      const errorMessage = getErrorMessage(error, 'Error al actualizar la materia');
       showNotification('error', errorMessage);
+      
+      if (error.response?.status === 401) {
+        localStorage.removeItem('authToken');
+      }
     }
   };
 
@@ -201,37 +255,41 @@ const EditMateriaForm = () => {
           </div>
 
           <div style={styles.formGroup}>
+            <label style={styles.label}>Cuatrimestre</label>
+            <input
+              style={styles.input}
+              type="number"
+              id="cuatrimestre"
+              name="cuatrimestre"
+              value={formData.cuatrimestre}
+              onChange={handleChange}
+              min="1"
+              placeholder="Ej: 1"
+            />
+          </div>
+
+
+          <div style={styles.formGroupFullWidth}>
             <label style={styles.label}>Correlativas</label>
-            <div style={styles.addCorrelativaContainer}>
-              <input
-                style={styles.addCorrelativaInput}
-                type="text"
-                value={newCorrelativa}
-                onChange={(e) => setNewCorrelativa(e.target.value)}
-                placeholder="Ej: MAT100"
-              />
-              <button 
-                style={styles.addCorrelativaButton}
-                type="button" 
-                onClick={handleAddCorrelativa}
-              >
-                <span style={iconStyles.plus}>+</span>
-              </button>
-            </div>
-            <div style={styles.correlativasContainer}>
-              {formData.codigosCorrelativas.map((correlativa, index) => (
-                <div key={index} style={styles.correlativaChip}>
-                  <span>{correlativa}</span>
-                  <button 
-                    style={styles.correlativaRemoveButton}
-                    type="button" 
-                    onClick={() => handleRemoveCorrelativa(index)}
-                  >
-                    <span style={iconStyles.x}>×</span>
-                  </button>
-                </div>
+            <select
+              style={{...styles.select, height: '120px'}}
+              multiple
+              id="codigosCorrelativas"
+              name="codigosCorrelativas"
+              value={formData.codigosCorrelativas}
+              onChange={handleCorrelativaChange}
+            >
+              {materiasDisponibles
+                .filter(materia => materia.codigoDeMateria !== formData.codigoDeMateria)
+                .map(materia => (
+                <option key={materia.codigoDeMateria} value={materia.codigoDeMateria}>
+                  {materia.codigoDeMateria} - {materia.nombre}
+                </option>
               ))}
-            </div>
+            </select>
+            <small style={{color: '#666', fontSize: '12px', marginTop: '4px', display: 'block'}}>
+              Sólo se pueden elegir materias dentro del mismo plan de estudios.
+            </small>
           </div>
         </div>
 

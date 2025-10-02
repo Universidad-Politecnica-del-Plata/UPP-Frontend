@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {styles} from '../styles/upp-style'
 import { useNavigate } from 'react-router-dom';
 import {iconStyles} from '../styles/icon-styles'
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { createPlanDeEstudios } from '../api/planDeEstudiosApi';
+import { getTodasMaterias } from '../api/materiasApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 const NuevoPlanDeEstudiosForm = () => {
   const navigate = useNavigate();
@@ -16,8 +18,32 @@ const NuevoPlanDeEstudiosForm = () => {
     codigosMaterias: []
   });
 
-  const [newMateria, setNewMateria] = useState('');
+  const [materiasDisponibles, setMateriasDisponibles] = useState([]);
   const { notification, showNotification, closeNotification } = useNotification();
+
+  useEffect(() => {
+    const fetchMaterias = async () => {
+      try {
+        const response = await getTodasMaterias();
+        // Filtrar materias sin plan asignado o del plan actual
+        const materiasSinPlan = response.data.filter(
+          materia => !materia.codigoPlanDeEstudios || materia.codigoPlanDeEstudios === ''
+        );
+        setMateriasDisponibles(materiasSinPlan);
+      } catch (error) {
+        console.error('Error fetching materias:', error);
+        
+        const errorMessage = getErrorMessage(error, 'Error al cargar materias disponibles');
+        showNotification('error', errorMessage);
+        
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+        }
+      }
+    };
+
+    fetchMaterias();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,20 +53,11 @@ const NuevoPlanDeEstudiosForm = () => {
     }));
   };
 
-  const handleAddMateria = () => {
-    if (newMateria.trim() !== '') {
-      setFormData(prevState => ({
-        ...prevState,
-        codigosMaterias: [...prevState.codigosMaterias, newMateria.trim()]
-      }));
-      setNewMateria('');
-    }
-  };
-
-  const handleRemoveMateria = (index) => {
+  const handleMateriasChange = (e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
     setFormData(prevState => ({
       ...prevState,
-      codigosMaterias: prevState.codigosMaterias.filter((_, i) => i !== index)
+      codigosMaterias: selectedOptions
     }));
   };
 
@@ -66,8 +83,13 @@ const NuevoPlanDeEstudiosForm = () => {
       showNotification('success', 'Plan de estudio creado exitosamente');
     } catch (error) {
       console.error('Error submitting form:', error);
-      const errorMessage = error.response?.data?.message || 'Error al crear el plan de estudio';
+      
+      const errorMessage = getErrorMessage(error, 'Error al crear el plan de estudio');
       showNotification('error', errorMessage);
+      
+      if (error.response?.status === 401) {
+        localStorage.removeItem('authToken');
+      }
     }
   };
 
@@ -82,7 +104,7 @@ const NuevoPlanDeEstudiosForm = () => {
     />
 
       <div style={styles.header}>
-        <button style={styles.headerButton} onClick={() => navigate('/GestionarPlanesDeEstudio')}>
+        <button style={styles.headerButton} onClick={() => navigate('/GestionPlanesDeEstudio')}>
           <span style={iconStyles.arrowLeft}>←</span>
           <span style={styles.headerButtonText}>Volver a Gestión de Planes de Estudio</span>
         </button>
@@ -143,44 +165,35 @@ const NuevoPlanDeEstudiosForm = () => {
             />
           </div>
 
-          <div style={styles.formGroup}>
+          <div style={styles.formGroupFullWidth}>
             <label style={styles.label}>Materias del Plan</label>
-            <div style={styles.addCorrelativaContainer}>
-              <input
-                style={styles.addCorrelativaInput}
-                type="text"
-                value={newMateria}
-                onChange={(e) => setNewMateria(e.target.value)}
-                placeholder="Ej: MAT101"
-              />
-              <button 
-                style={styles.addCorrelativaButton}
-                type="button" 
-                onClick={handleAddMateria}
-              >
-                <span style={iconStyles.plus}>+</span>
-              </button>
-            </div>
-            <div style={styles.correlativasContainer}>
-              {formData.codigosMaterias.map((materia, index) => (
-                <div key={index} style={styles.correlativaChip}>
-                  <span>{materia}</span>
-                  <button 
-                    style={styles.correlativaRemoveButton}
-                    type="button" 
-                    onClick={() => handleRemoveMateria(index)}
-                  >
-                    <span style={iconStyles.x}>×</span>
-                  </button>
-                </div>
-              ))}
-            </div>
+            <select
+              style={{...styles.select, height: '120px'}}
+              multiple
+              id="codigosMaterias"
+              name="codigosMaterias"
+              value={formData.codigosMaterias}
+              onChange={handleMateriasChange}
+            >
+              {materiasDisponibles.length === 0 ? (
+                <option disabled>No hay materias disponibles para asignar</option>
+              ) : (
+                materiasDisponibles.map(materia => (
+                  <option key={materia.codigoDeMateria} value={materia.codigoDeMateria}>
+                    {materia.codigoDeMateria} - {materia.nombre}
+                  </option>
+                ))
+              )}
+            </select>
+            <small style={{color: '#666', fontSize: '12px', marginTop: '4px', display: 'block'}}>
+              Solo se muestran materias sin plan asignado o del plan actual.
+            </small>
           </div>
         </div>
 
         <div style={styles.buttonGroup}>
           <button
-            onClick={() => navigate('/GestionarPlanesDeEstudio')}
+            onClick={() => navigate('/GestionPlanesDeEstudio')}
             style={styles.cancelButton}
             type="button" 
           >

@@ -5,6 +5,7 @@ import {confirmationModalStyles} from '../styles/confirm-modal-styles'
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getTodosPlanesDeEstudio, deletePlanDeEstudios } from '../api/planDeEstudiosApi';
+import { getErrorMessage } from '../utils/errorHandler';
 
 export default function PlanesDeEstudioPage() {
   const [planesDeEstudio, setPlanesDeEstudio] = useState([]);
@@ -34,13 +35,11 @@ export default function PlanesDeEstudioPage() {
       } catch (err) {
         console.error("Error al cargar planes de estudio:", err);
         
+        const errorMessage = getErrorMessage(err, "Error al cargar los planes de estudio.");
+        showNotification('error', errorMessage);
+        
         if (err.response?.status === 401) {
-          showNotification('error', "Sesión expirada. Por favor, inicie sesión nuevamente.");
           localStorage.removeItem('authToken');
-        } else if (err.response?.status === 403) {
-          showNotification('error', "No tiene permisos para acceder a esta información.");
-        } else {
-          showNotification('error', "Error al cargar los planes de estudio.");
         }
       } finally {
         setLoading(false);
@@ -75,7 +74,14 @@ export default function PlanesDeEstudioPage() {
 
     } catch (err) {
       console.error("Error al eliminar plan de estudio:", err);
-      showNotification('error', "Error al eliminar el plan de estudio.");
+      
+      const errorMessage = getErrorMessage(err, "Error al eliminar el plan de estudio.");
+      showNotification('error', errorMessage);
+      
+      if (err.response?.status === 401) {
+        localStorage.removeItem('authToken');
+      }
+      
       setConfirmDelete(null);
     }
   };
@@ -90,6 +96,7 @@ export default function PlanesDeEstudioPage() {
     const matchesSearch = 
       searchTerm === '' || 
       plan.codigoDePlanDeEstudios.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (plan.codigoCarrera && plan.codigoCarrera.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (plan.codigosMaterias && Array.isArray(plan.codigosMaterias) && 
         plan.codigosMaterias.some(codigo => codigo.toLowerCase().includes(searchTerm.toLowerCase())));
     
@@ -118,7 +125,7 @@ export default function PlanesDeEstudioPage() {
           <label style={styles.label}>Buscar</label>
           <input
             type="text"
-            placeholder="código de plan o código de materia"
+            placeholder="código de plan, código de materia o carrera"
             style={styles.searchInput}
             value={searchTerm}
             onChange={handleSearchChange}
@@ -146,6 +153,7 @@ export default function PlanesDeEstudioPage() {
                 <th style={styles.tableHeadCell}>Créditos Obligatorios</th>
                 <th style={styles.tableHeadCell}>Fecha Entrada en Vigencia</th>
                 <th style={styles.tableHeadCell}>Fecha Vencimiento</th>
+                <th style={styles.tableHeadCell}>Carrera</th>
                 <th style={styles.tableHeadCell}>Materias</th>
                 <th style={styles.tableHeadCell}>Acciones</th>
               </tr>
@@ -158,6 +166,7 @@ export default function PlanesDeEstudioPage() {
                   <td style={styles.tableCell}>{plan.creditosObligatorios}</td>
                   <td style={styles.tableCell}>{formatDate(plan.fechaEntradaEnVigencia)}</td>
                   <td style={styles.tableCell}>{formatDate(plan.fechaVencimiento)}</td>
+                  <td style={styles.tableCell}>{plan.codigoCarrera || '-'}</td>
                   <td style={styles.tableCell}>
                     <div>
                       {plan.codigosMaterias && Array.isArray(plan.codigosMaterias) ? 

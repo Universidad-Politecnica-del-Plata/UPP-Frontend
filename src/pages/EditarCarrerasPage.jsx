@@ -4,40 +4,40 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { iconStyles } from '../styles/icon-styles';
-import { getPlanDeEstudios, updatePlanDeEstudios } from '../api/planDeEstudiosApi';
-import { getTodasMaterias } from '../api/materiasApi';
+import { getCarrera, updateCarrera } from '../api/carrerasApi';
+import { getTodosPlanesDeEstudio } from '../api/planDeEstudiosApi';
 import { getErrorMessage } from '../utils/errorHandler';
 
-const EditPlanDeEstudiosForm = () => {
+const EditCarreraForm = () => {
   const navigate = useNavigate();
   const { codigo } = useParams(); 
   const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
-    codigoDePlanDeEstudios: '',
-    creditosElectivos: '',
-    fechaEntradaEnVigencia: '',
-    fechaVencimiento: '',
-    codigosMaterias: []
+    codigoDeCarrera: '',
+    nombre: '',
+    titulo: '',
+    incumbencias: '',
+    codigosPlanesDeEstudio: []
   });
 
-  const [materiasDisponibles, setMateriasDisponibles] = useState([]);
+  const [planesDeEstudioDisponibles, setPlanesDeEstudioDisponibles] = useState([]);
   const { notification, showNotification, closeNotification } = useNotification();
 
   useEffect(() => {
-    const fetchMaterias = async () => {
+    const fetchPlanesDeEstudio = async () => {
       try {
-        const response = await getTodasMaterias();
-        // Filtrar materias sin plan asignado o del plan actual
-        const materiasValidas = response.data.filter(
-          materia => !materia.codigoPlanDeEstudios || 
-                    materia.codigoPlanDeEstudios === '' || 
-                    materia.codigoPlanDeEstudios === codigo
+        const response = await getTodosPlanesDeEstudio();
+        // Filtrar planes sin carrera asignada o de la carrera actual
+        const planesValidos = response.data.filter(
+          plan => !plan.codigoCarrera || 
+                  plan.codigoCarrera === '' || 
+                  plan.codigoCarrera === codigo
         );
-        setMateriasDisponibles(materiasValidas);
+        setPlanesDeEstudioDisponibles(planesValidos);
       } catch (error) {
-        console.error('Error fetching materias:', error);
+        console.error('Error fetching planes de estudio:', error);
         
-        const errorMessage = getErrorMessage(error, 'Error al cargar materias disponibles');
+        const errorMessage = getErrorMessage(error, 'Error al cargar planes de estudio disponibles');
         showNotification('error', errorMessage);
         
         if (error.response?.status === 401) {
@@ -47,29 +47,30 @@ const EditPlanDeEstudiosForm = () => {
     };
 
     if (codigo) {
-      fetchMaterias();
+      fetchPlanesDeEstudio();
     }
+    // eslint-disable-next-line
   }, [codigo]);
 
   useEffect(() => {
-    const fetchPlanDeEstudios = async () => {
+    const fetchCarrera = async () => {
       try {
         setIsLoading(true);
-        const response = await getPlanDeEstudios(codigo);
+        const response = await getCarrera(codigo);
         const data = response.data;
         
         setFormData({
-          codigoDePlanDeEstudios: data.codigoDePlanDeEstudios,
-          creditosElectivos: data.creditosElectivos,
-          fechaEntradaEnVigencia: data.fechaEntradaEnVigencia ? data.fechaEntradaEnVigencia.split('T')[0] : '',
-          fechaVencimiento: data.fechaVencimiento ? data.fechaVencimiento.split('T')[0] : '',
-          codigosMaterias: data.codigosMaterias || []
+          codigoDeCarrera: data.codigoDeCarrera,
+          nombre: data.nombre,
+          titulo: data.titulo,
+          incumbencias: data.incumbencias,
+          codigosPlanesDeEstudio: data.codigosPlanesDeEstudio || []
         });
         setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching plan de estudios:', error);
+        console.error('Error fetching carrera:', error);
         
-        const errorMessage = getErrorMessage(error, 'Error al cargar datos del plan de estudios');
+        const errorMessage = getErrorMessage(error, 'Error al cargar datos de la carrera');
         showNotification('error', errorMessage);
         
         if (error.response?.status === 401) {
@@ -81,8 +82,9 @@ const EditPlanDeEstudiosForm = () => {
     };
 
     if (codigo) {
-      fetchPlanDeEstudios();
+      fetchCarrera();
     }
+    // eslint-disable-next-line
   }, [codigo]);
 
   const handleChange = (e) => {
@@ -93,11 +95,11 @@ const EditPlanDeEstudiosForm = () => {
     }));
   };
 
-  const handleMateriasChange = (e) => {
+  const handlePlanesDeEstudioChange = (e) => {
     const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
     setFormData(prevState => ({
       ...prevState,
-      codigosMaterias: selectedOptions
+      codigosPlanesDeEstudio: selectedOptions
     }));
   };
 
@@ -110,16 +112,16 @@ const EditPlanDeEstudiosForm = () => {
 
   const handleSubmit = async () => {
     try {
-      console.log('Form submitted:', `${process.env.REACT_APP_API_ENDPOINT}/planDeEstudios/${codigo}`, formData);
+      console.log('Form submitted:', `${process.env.REACT_APP_API_ENDPOINT}/carreras/${codigo}`, formData);
 
-      const response = await updatePlanDeEstudios(codigo, formData);
+      const response = await updateCarrera(codigo, formData);
 
       console.log('Response:', response.data);
-      showNotification('success', 'Plan de estudios actualizado exitosamente');
+      showNotification('success', 'Carrera actualizada exitosamente');
     } catch (error) {
-      console.error('Error updating plan de estudios:', error);
+      console.error('Error updating carrera:', error);
       
-      const errorMessage = getErrorMessage(error, 'Error al actualizar el plan de estudios');
+      const errorMessage = getErrorMessage(error, 'Error al actualizar la carrera');
       showNotification('error', errorMessage);
       
       if (error.response?.status === 401) {
@@ -131,7 +133,7 @@ const EditPlanDeEstudiosForm = () => {
   if (isLoading) {
     return (
       <div style={styles.container}>
-        <div style={styles.loadingIndicator}>Cargando datos del plan de estudios...</div>
+        <div style={styles.loadingIndicator}>Cargando datos de la carrera...</div>
       </div>
     );
   }
@@ -147,91 +149,92 @@ const EditPlanDeEstudiosForm = () => {
     />
 
       <div style={styles.header}>
-        <button style={styles.headerButton} onClick={() => navigate('/GestionPlanesDeEstudio')}>
+        <button style={styles.headerButton} onClick={() => navigate('/GestionCarreras')}>
           <span style={iconStyles.arrowLeft}>←</span>
-          <span style={styles.headerButtonText}>Volver a Gestión de Planes de Estudio</span>
+          <span style={styles.headerButtonText}>Volver a Gestión de Carreras</span>
         </button>
       </div>
 
-      <h1 style={styles.heading}>Editar Plan de Estudios</h1>
+      <h1 style={styles.heading}>Editar Carrera</h1>
 
       <div style={styles.formContainer}>
         <div style={styles.formGrid}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Código</label>
+            <label style={styles.label}>Código de Carrera</label>
             <input
               style={{...styles.input, backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
               type="text"
-              id="codigoDePlanDeEstudios"
-              name="codigoDePlanDeEstudios"
-              value={formData.codigoDePlanDeEstudios}
+              id="codigoDeCarrera"
+              name="codigoDeCarrera"
+              value={formData.codigoDeCarrera}
               disabled
               readOnly
             />
           </div>
 
           <div style={styles.formGroup}>
-            <label style={styles.label}>Créditos Electivos</label>
+            <label style={styles.label}>Nombre</label>
             <input
               style={styles.input}
-              type="number"
-              id="creditosElectivos"
-              name="creditosElectivos"
-              value={formData.creditosElectivos}
+              type="text"
+              id="nombre"
+              name="nombre"
+              value={formData.nombre}
               onChange={handleChange}
-              min="0"
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Fecha de Entrada en Vigencia</label>
-            <input
-              style={styles.input}
-              type="date"
-              id="fechaEntradaEnVigencia"
-              name="fechaEntradaEnVigencia"
-              value={formData.fechaEntradaEnVigencia}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Fecha de Vencimiento</label>
-            <input
-              style={styles.input}
-              type="date"
-              id="fechaVencimiento"
-              name="fechaVencimiento"
-              value={formData.fechaVencimiento}
-              onChange={handleChange}
+              placeholder="Ej: Ingeniería en Sistemas"
             />
           </div>
 
           <div style={styles.formGroupFullWidth}>
-            <label style={styles.label}>Materias del Plan</label>
+            <label style={styles.label}>Título</label>
+            <input
+              style={styles.input}
+              type="text"
+              id="titulo"
+              name="titulo"
+              value={formData.titulo}
+              onChange={handleChange}
+              placeholder="Ej: Ingeniero/a en Sistemas de Información"
+            />
+          </div>
+
+          <div style={styles.formGroupFullWidth}>
+            <label style={styles.label}>Incumbencias</label>
+            <textarea
+              style={styles.textarea}
+              id="incumbencias"
+              name="incumbencias"
+              value={formData.incumbencias}
+              onChange={handleChange}
+              placeholder="Ej: Desarrollo de software, gestión de sistemas, análisis de datos..."
+            />
+          </div>
+
+          <div style={styles.formGroupFullWidth}>
+            <label style={styles.label}>Planes de Estudio</label>
             <select
               style={{...styles.select, height: '120px'}}
               multiple
-              id="codigosMaterias"
-              name="codigosMaterias"
-              value={formData.codigosMaterias}
-              onChange={handleMateriasChange}
+              id="codigosPlanesDeEstudio"
+              name="codigosPlanesDeEstudio"
+              value={formData.codigosPlanesDeEstudio}
+              onChange={handlePlanesDeEstudioChange}
             >
-              {materiasDisponibles.map(materia => (
-                <option key={materia.codigoDeMateria} value={materia.codigoDeMateria}>
-                  {materia.codigoDeMateria} - {materia.nombre}
+              {planesDeEstudioDisponibles.map(plan => (
+                <option key={plan.codigoDePlanDeEstudios} value={plan.codigoDePlanDeEstudios}>
+                  {plan.codigoDePlanDeEstudios}
                 </option>
               ))}
             </select>
             <small style={{color: '#666', fontSize: '12px', marginTop: '4px', display: 'block'}}>
-              Solo se muestran materias sin plan asignado o del plan actual.
+              Solo se muestran planes sin carrera asignada o de la carrera actual.
             </small>
           </div>
         </div>
 
         <div style={styles.buttonGroup}>
           <button
-            onClick={() => navigate('/GestionPlanesDeEstudio')}
+            onClick={() => navigate('/GestionCarreras')}
             style={styles.cancelButton}
             type="button" 
           >
@@ -253,4 +256,4 @@ const EditPlanDeEstudiosForm = () => {
   );
 };
 
-export default EditPlanDeEstudiosForm;
+export default EditCarreraForm;
