@@ -17,7 +17,10 @@ const UnauthorizedPage = () => {
       navigate('/GestionMaterias');
     } else if (user?.roles?.includes('ROLE_GESTION_ESTUDIANTIL')) {
       navigate('/GestionAlumnos');
-    } else {
+    }else if (user?.roles?.includes('ROLE_GESTOR_DE_PLANIFICACION')) {
+      navigate('/GestionCursos');
+    }  
+    else {
       navigate('/login');
     }
   };

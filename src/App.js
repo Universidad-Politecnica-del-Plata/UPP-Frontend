@@ -16,6 +16,9 @@ import EditarCarrerasPage from "./pages/EditarCarrerasPage.jsx";
 import AlumnosPage from "./pages/AlumnosPage.jsx";
 import CrearAlumno from "./pages/CrearAlumnoPage.jsx";
 import EditarAlumnoPage from "./pages/EditarAlumnoPage.jsx";
+import CursosPage from "./pages/CursosPage.jsx";
+import CrearCursoPage from "./pages/CrearCursoPage.jsx";
+import EditarCursoPage from "./pages/EditarCursoPage.jsx";
 import UnauthorizedPage from "./pages/UnauthorizedPage.jsx";
 
 function App() {
@@ -102,6 +105,24 @@ function App() {
           <Route path="/EditarAlumno/:matricula" element={
             <ProtectedRoute>
               <EditarAlumnoPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/GestionCursos" element={
+            <ProtectedRoute>
+              <CursosPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/CrearCurso" element={
+            <ProtectedRoute>
+              <CrearCursoPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/EditarCurso/:codigo" element={
+            <ProtectedRoute>
+              <EditarCursoPage />
             </ProtectedRoute>
           } />
         </Routes>

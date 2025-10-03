@@ -25,6 +25,8 @@ const LoginPage = () => {
         navigate('/GestionMaterias');
       } else if (user?.roles?.includes('ROLE_GESTION_ESTUDIANTIL')) {
         navigate('/GestionAlumnos');
+      } else if (user?.roles?.includes('ROLE_GESTOR_DE_PLANIFICACION')) {
+        navigate('/GestionCursos'); 
       } else {
         navigate('/GestionMaterias'); // Por defecto
       }
