@@ -19,6 +19,9 @@ import EditarAlumnoPage from "./pages/EditarAlumnoPage.jsx";
 import CursosPage from "./pages/CursosPage.jsx";
 import CrearCursoPage from "./pages/CrearCursoPage.jsx";
 import EditarCursoPage from "./pages/EditarCursoPage.jsx";
+import CuatrimestrePage from "./pages/CuatrimestrePage.jsx";
+import CrearCuatrimestrePage from "./pages/CrearCuatrimestrePage.jsx";
+import EditarCuatrimestrePage from "./pages/EditarCuatrimestrePage.jsx";
 import UnauthorizedPage from "./pages/UnauthorizedPage.jsx";
 
 function App() {
@@ -123,6 +126,24 @@ function App() {
           <Route path="/EditarCurso/:codigo" element={
             <ProtectedRoute>
               <EditarCursoPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/GestionCuatrimestres" element={
+            <ProtectedRoute requiredRole="ROLE_GESTOR_DE_PLANIFICACION">
+              <CuatrimestrePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/CrearCuatrimestre" element={
+            <ProtectedRoute requiredRole="ROLE_GESTOR_DE_PLANIFICACION">
+              <CrearCuatrimestrePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/EditarCuatrimestre/:codigo" element={
+            <ProtectedRoute requiredRole="ROLE_GESTOR_DE_PLANIFICACION">
+              <EditarCuatrimestrePage />
             </ProtectedRoute>
           } />
         </Routes>
