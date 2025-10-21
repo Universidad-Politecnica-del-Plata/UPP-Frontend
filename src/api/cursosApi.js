@@ -6,3 +6,4 @@ export const updateCurso = (codigo, data) => api.put(`/cursos/${codigo}`, JSON.s
 export const deleteCurso = (codigo) => api.delete(`/cursos/${codigo}`);
 export const getTodosCursos = () => api.get('/cursos');
 export const getCursosPorMateria = (codigoMateria) => api.get(`/cursos/materia/${codigoMateria}`);
+export const getCursosPorPlanDeEstudios = (codigoPlan) => api.get(`/cursos/planDeEstudios/${codigoPlan}`);

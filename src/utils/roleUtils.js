@@ -17,7 +17,8 @@ export const ROLE_PERMISSIONS = {
   '/EditarCurso': ['ROLE_GESTOR_DE_PLANIFICACION'],
   '/GestionCuatrimestres': ['ROLE_GESTOR_DE_PLANIFICACION'],
   '/CrearCuatrimestre': ['ROLE_GESTOR_DE_PLANIFICACION'],
-  '/EditarCuatrimestre': ['ROLE_GESTOR_DE_PLANIFICACION']
+  '/EditarCuatrimestre': ['ROLE_GESTOR_DE_PLANIFICACION'],
+  '/InscripcionCursos': ['ROLE_ALUMNO'],
 };
 
 // Rutas públicas que no requieren autenticación

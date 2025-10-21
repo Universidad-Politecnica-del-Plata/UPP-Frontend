@@ -23,6 +23,7 @@ import CuatrimestrePage from "./pages/CuatrimestrePage.jsx";
 import CrearCuatrimestrePage from "./pages/CrearCuatrimestrePage.jsx";
 import EditarCuatrimestrePage from "./pages/EditarCuatrimestrePage.jsx";
 import UnauthorizedPage from "./pages/UnauthorizedPage.jsx";
+import InscripcionCursosPage from "./pages/InscripcionCursosPage.jsx";
 
 function App() {
   return (
@@ -144,6 +145,12 @@ function App() {
           <Route path="/EditarCuatrimestre/:codigo" element={
             <ProtectedRoute requiredRole="ROLE_GESTOR_DE_PLANIFICACION">
               <EditarCuatrimestrePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/InscripcionCursos" element={
+            <ProtectedRoute>
+              <InscripcionCursosPage />
             </ProtectedRoute>
           } />
         </Routes>
