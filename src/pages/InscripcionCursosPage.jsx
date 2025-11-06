@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { inscripcionStyles } from '../styles/inscripcion-cursos-styles';
 import { styles } from '../styles/upp-style';
+import { confirmationModalStyles } from '../styles/confirm-modal-styles';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getAlumnoActual } from '../api/alumnosApi';
 import { getCursosPorPlanDeEstudios } from '../api/cursosApi';
 import { getMateria } from '../api/materiasApi';
+import { crearInscripcion } from '../api/inscripcionesApi';
 import { getErrorMessage } from '../utils/errorHandler';
 
 export default function InscripcionCursosPage() {
@@ -24,6 +26,10 @@ export default function InscripcionCursosPage() {
   const [busqueda, setBusqueda] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const cursosPerPage = 5;
+
+  // Estado para el modal de confirmación
+  const [modalData, setModalData] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -128,9 +134,19 @@ export default function InscripcionCursosPage() {
   const currentCursos = filteredCursos.slice(indexOfFirstCurso, indexOfLastCurso);
   const totalPages = Math.ceil(filteredCursos.length / cursosPerPage);
 
-  const handleInscribirse = (codigoCurso) => {
-    // TODO: Implementar lógica de inscripción cuando el backend esté listo
-    showNotification('info', `Funcionalidad de inscripción pendiente para curso ${codigoCurso}`);
+  const handleInscribirse = async (codigoCurso) => {
+    try {
+      // Llamar al endpoint de inscripción
+      const response = await crearInscripcion({ codigoCurso });
+
+      // Mostrar modal con los datos de la inscripción
+      setModalData(response.data);
+      setShowModal(true);
+    } catch (err) {
+      console.error('Error al crear inscripción:', err);
+      const errorMessage = getErrorMessage(err, 'Error al inscribirse al curso.');
+      showNotification('error', errorMessage);
+    }
   };
 
   if (loading) {
@@ -381,6 +397,68 @@ export default function InscripcionCursosPage() {
             </div>
           )}
         </>
+      )}
+
+      {/* Modal de confirmación de inscripción */}
+      {showModal && modalData && (
+        <div style={confirmationModalStyles.simpleOverlay} onClick={() => setShowModal(false)}>
+          <div style={{
+            ...confirmationModalStyles.simpleModal,
+            width: '400px',
+            padding: '24px'
+          }} onClick={(e) => e.stopPropagation()}>
+            <h2 style={{
+              margin: '0 0 16px 0',
+              fontSize: '20px',
+              fontWeight: 'bold',
+              color: '#10B981',
+              textAlign: 'center'
+            }}>
+              ✓ Inscripción Exitosa
+            </h2>
+
+            <div style={{
+              fontSize: '14px',
+              color: '#374151',
+              lineHeight: '1.8'
+            }}>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>Código de Inscripción:</strong> {modalData.codigoDeInscripcion}
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>Fecha:</strong> {modalData.fecha}
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>Horario:</strong> {modalData.horario}
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>Código de Curso:</strong> {modalData.codigoCurso}
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>Código de Cuatrimestre:</strong> {modalData.codigoCuatrimestre}
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginTop: '20px'
+            }}>
+              <button
+                style={{
+                  ...confirmationModalStyles.simpleConfirmButton,
+                  backgroundColor: '#10B981',
+                  padding: '10px 24px',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+                onClick={() => setShowModal(false)}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

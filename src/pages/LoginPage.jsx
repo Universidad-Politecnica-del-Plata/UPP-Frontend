@@ -26,9 +26,11 @@ const LoginPage = () => {
       } else if (user?.roles?.includes('ROLE_GESTION_ESTUDIANTIL')) {
         navigate('/GestionAlumnos');
       } else if (user?.roles?.includes('ROLE_GESTOR_DE_PLANIFICACION')) {
-        navigate('/GestionCursos'); 
+        navigate('/GestionCursos');
+      } else if (user?.roles?.includes('ROLE_ALUMNO')) {
+        navigate('/InscripcionCursos');
       } else {
-        navigate('/GestionMaterias'); // Por defecto
+        navigate('/login');
       }
     }
   }, [isAuthenticated, user, navigate]);
