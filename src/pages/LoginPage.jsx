@@ -29,6 +29,8 @@ const LoginPage = () => {
         navigate('/GestionCursos');
       } else if (user?.roles?.includes('ROLE_ALUMNO')) {
         navigate('/InscripcionCursos');
+      } else if (user?.roles?.includes('ROLE_DOCENTE')) {
+        navigate('/GestionActas');
       } else {
         navigate('/login');
       }

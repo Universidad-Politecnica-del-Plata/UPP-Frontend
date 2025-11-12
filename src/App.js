@@ -24,6 +24,9 @@ import CrearCuatrimestrePage from "./pages/CrearCuatrimestrePage.jsx";
 import EditarCuatrimestrePage from "./pages/EditarCuatrimestrePage.jsx";
 import UnauthorizedPage from "./pages/UnauthorizedPage.jsx";
 import InscripcionCursosPage from "./pages/InscripcionCursosPage.jsx";
+import ActasPage from "./pages/ActasPage.jsx";
+import AbrirActaPage from "./pages/AbrirActaPage.jsx";
+import VerActaPage from "./pages/VerActaPage.jsx";
 
 function App() {
   return (
@@ -147,6 +150,24 @@ function App() {
           <Route path="/InscripcionCursos" element={
             <ProtectedRoute>
               <InscripcionCursosPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/GestionActas" element={
+            <ProtectedRoute requiredRole="ROLE_DOCENTE">
+              <ActasPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/AbrirActa" element={
+            <ProtectedRoute requiredRole="ROLE_DOCENTE">
+              <AbrirActaPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/VerActa/:numeroCorrelativo" element={
+            <ProtectedRoute requiredRole="ROLE_DOCENTE">
+              <VerActaPage />
             </ProtectedRoute>
           } />
         </Routes>
