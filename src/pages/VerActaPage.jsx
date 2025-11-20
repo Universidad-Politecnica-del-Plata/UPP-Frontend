@@ -4,7 +4,7 @@ import {styles} from '../styles/upp-style';
 import {iconStyles} from '../styles/icon-styles';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
-import { getActa, getNotasPorActa, agregarNota, actualizarNota, actualizarEstadoActa } from '../api/actasApi';
+import { getActa, getNotasPorActa, agregarNotasMasivas, actualizarEstadoActa, getAlumnosInscriptos } from '../api/actasApi';
 import { getErrorMessage } from '../utils/errorHandler';
 
 const VerActaPage = () => {
@@ -31,9 +31,26 @@ const VerActaPage = () => {
         const actaResponse = await getActa(numeroCorrelativo);
         setActa(actaResponse.data);
 
-        // Cargar notas del acta
-        const notasResponse = await getNotasPorActa(numeroCorrelativo);
-        setNotas(notasResponse.data);
+        // Cargar alumnos inscriptos y notas del acta
+        const [alumnosResponse, notasResponse] = await Promise.all([
+          getAlumnosInscriptos(numeroCorrelativo),
+          getNotasPorActa(numeroCorrelativo)
+        ]);
+
+        // Fusionar alumnos inscriptos con notas existentes
+        const alumnosConNotas = alumnosResponse.data.map(alumno => {
+          const notaExistente = notasResponse.data.find(nota => nota.alumnoId === alumno.id);
+          return {
+            id: notaExistente?.id || null,
+            alumnoId: alumno.id,
+            matriculaAlumno: alumno.matricula,
+            nombreAlumno: alumno.nombre,
+            apellidoAlumno: alumno.apellido,
+            valor: notaExistente?.valor || ''
+          };
+        });
+
+        setNotas(alumnosConNotas);
       } catch (error) {
         console.error('Error fetching data:', error);
         const errorMessage = getErrorMessage(error, 'Error al cargar el acta');
@@ -56,22 +73,48 @@ const VerActaPage = () => {
 
   const handleGuardarCambios = async () => {
     try {
-      // Actualizar cada nota modificada
-      for (const nota of notas) {
-        if (nota.id) {
-          await actualizarNota(nota.id, {
-            valor: parseInt(nota.valor) || 0,
-            alumnoId: nota.alumnoId,
-            numeroCorrelativoActa: parseInt(numeroCorrelativo)
-          });
-        }
+      // Filtrar solo las notas con valor cargado (entre 1 y 10)
+      const notasConValor = notas.filter(nota => {
+        const valor = parseInt(nota.valor);
+        return !isNaN(valor) && valor >= 1 && valor <= 10;
+      });
+
+      if (notasConValor.length === 0) {
+        showNotification('error', 'No hay notas válidas para guardar');
+        return;
       }
 
-      showNotification('success', 'Cambios guardados exitosamente');
+      // Preparar el request según el DTO NotasMasivasRequestDTO
+      const requestData = {
+        notas: notasConValor.map(nota => ({
+          valor: parseInt(nota.valor),
+          alumnoId: nota.alumnoId
+        }))
+      };
 
-      // Recargar notas
-      const notasResponse = await getNotasPorActa(numeroCorrelativo);
-      setNotas(notasResponse.data);
+      await agregarNotasMasivas(numeroCorrelativo, requestData);
+
+      showNotification('success', 'Notas guardadas exitosamente');
+
+      // Recargar datos
+      const [alumnosResponse, notasResponse] = await Promise.all([
+        getAlumnosInscriptos(numeroCorrelativo),
+        getNotasPorActa(numeroCorrelativo)
+      ]);
+
+      const alumnosConNotas = alumnosResponse.data.map(alumno => {
+        const notaExistente = notasResponse.data.find(nota => nota.alumnoId === alumno.id);
+        return {
+          id: notaExistente?.id || null,
+          alumnoId: alumno.id,
+          matriculaAlumno: alumno.matricula,
+          nombreAlumno: alumno.nombre,
+          apellidoAlumno: alumno.apellido,
+          valor: notaExistente?.valor || ''
+        };
+      });
+
+      setNotas(alumnosConNotas);
     } catch (error) {
       console.error('Error saving changes:', error);
       const errorMessage = getErrorMessage(error, 'Error al guardar los cambios');
