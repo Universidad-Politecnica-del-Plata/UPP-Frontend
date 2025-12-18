@@ -236,6 +236,51 @@ export const inscripcionStyles = {
     opacity: 0.5,
     cursor: 'not-allowed',
   },
+
+  // Acordeón de cuatrimestres
+  cuatrimestreSection: {
+    marginBottom: '16px',
+  },
+  cuatrimestreHeader: {
+    background: 'linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)',
+    padding: '16px 20px',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    border: '2px solid #D1D5DB',
+    transition: 'all 0.2s',
+  },
+  cuatrimestreHeaderHover: {
+    background: 'linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%)',
+    borderColor: '#3B82F6',
+  },
+  cuatrimestreTitle: {
+    fontSize: '18px',
+    fontWeight: 'bold',
+    color: '#1F2937',
+    margin: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  cuatrimestreCount: {
+    fontSize: '14px',
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+  cuatrimestreIcon: {
+    fontSize: '20px',
+    transition: 'transform 0.2s',
+  },
+  cuatrimestreIconExpanded: {
+    transform: 'rotate(90deg)',
+  },
+  cuatrimestreContent: {
+    marginTop: '12px',
+    paddingLeft: '12px',
+  },
 };
 
 export default inscripcionStyles;

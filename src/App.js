@@ -24,6 +24,7 @@ import CrearCuatrimestrePage from "./pages/CrearCuatrimestrePage.jsx";
 import EditarCuatrimestrePage from "./pages/EditarCuatrimestrePage.jsx";
 import UnauthorizedPage from "./pages/UnauthorizedPage.jsx";
 import InscripcionCursosPage from "./pages/InscripcionCursosPage.jsx";
+import MisInscripcionesPage from "./pages/MisInscripcionesPage.jsx";
 import ActasPage from "./pages/ActasPage.jsx";
 import AbrirActaPage from "./pages/AbrirActaPage.jsx";
 import VerActaPage from "./pages/VerActaPage.jsx";
@@ -150,6 +151,12 @@ function App() {
           <Route path="/InscripcionCursos" element={
             <ProtectedRoute>
               <InscripcionCursosPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/MisInscripciones" element={
+            <ProtectedRoute>
+              <MisInscripcionesPage />
             </ProtectedRoute>
           } />
 
