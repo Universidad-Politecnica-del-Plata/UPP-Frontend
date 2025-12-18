@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -16,18 +16,25 @@ import EditarCarrerasPage from "./pages/EditarCarrerasPage.jsx";
 import AlumnosPage from "./pages/AlumnosPage.jsx";
 import CrearAlumno from "./pages/CrearAlumnoPage.jsx";
 import EditarAlumnoPage from "./pages/EditarAlumnoPage.jsx";
+import CursosPage from "./pages/CursosPage.jsx";
+import CrearCursoPage from "./pages/CrearCursoPage.jsx";
+import EditarCursoPage from "./pages/EditarCursoPage.jsx";
+import CuatrimestrePage from "./pages/CuatrimestrePage.jsx";
+import CrearCuatrimestrePage from "./pages/CrearCuatrimestrePage.jsx";
+import EditarCuatrimestrePage from "./pages/EditarCuatrimestrePage.jsx";
 import UnauthorizedPage from "./pages/UnauthorizedPage.jsx";
+import InscripcionCursosPage from "./pages/InscripcionCursosPage.jsx";
+import MisInscripcionesPage from "./pages/MisInscripcionesPage.jsx";
+import ActasPage from "./pages/ActasPage.jsx";
+import AbrirActaPage from "./pages/AbrirActaPage.jsx";
+import VerActaPage from "./pages/VerActaPage.jsx";
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={
-            <ProtectedRoute>
-              {"home"}
-            </ProtectedRoute>
-          } />
+          <Route path="/" element={<Navigate to="/login" replace />} />
           
           <Route path="/login" element={<LoginPage />} />
           
@@ -102,6 +109,72 @@ function App() {
           <Route path="/EditarAlumno/:matricula" element={
             <ProtectedRoute>
               <EditarAlumnoPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/GestionCursos" element={
+            <ProtectedRoute>
+              <CursosPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/CrearCurso" element={
+            <ProtectedRoute>
+              <CrearCursoPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/EditarCurso/:codigo" element={
+            <ProtectedRoute>
+              <EditarCursoPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/GestionCuatrimestres" element={
+            <ProtectedRoute requiredRole="ROLE_GESTOR_DE_PLANIFICACION">
+              <CuatrimestrePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/CrearCuatrimestre" element={
+            <ProtectedRoute requiredRole="ROLE_GESTOR_DE_PLANIFICACION">
+              <CrearCuatrimestrePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/EditarCuatrimestre/:codigo" element={
+            <ProtectedRoute requiredRole="ROLE_GESTOR_DE_PLANIFICACION">
+              <EditarCuatrimestrePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/InscripcionCursos" element={
+            <ProtectedRoute>
+              <InscripcionCursosPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/MisInscripciones" element={
+            <ProtectedRoute>
+              <MisInscripcionesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/GestionActas" element={
+            <ProtectedRoute requiredRole="ROLE_DOCENTE">
+              <ActasPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/AbrirActa" element={
+            <ProtectedRoute requiredRole="ROLE_DOCENTE">
+              <AbrirActaPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/VerActa/:numeroCorrelativo" element={
+            <ProtectedRoute requiredRole="ROLE_DOCENTE">
+              <VerActaPage />
             </ProtectedRoute>
           } />
         </Routes>
