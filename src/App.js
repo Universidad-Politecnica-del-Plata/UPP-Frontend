@@ -4,6 +4,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import LoginPage from "./pages/LoginPage.jsx";
+import HomePage from "./pages/HomePage.jsx";
 import MateriasPage from "./pages/MateriasPage.jsx";
 import CrearMateriaPage from "./pages/CrearMateriaPage.jsx";
 import EditarMateriaPage from "./pages/EditarMateriasPage.jsx";
@@ -35,9 +36,15 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
-          
+
           <Route path="/login" element={<LoginPage />} />
-          
+
+          <Route path="/home" element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          } />
+
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
           
           <Route path="/GestionMaterias" element={
