@@ -229,7 +229,12 @@ export default function InscripcionCursosPage() {
 
   return (
     <>
-      <Header title="Inscripción a Cursos" />
+      <Header
+        title="Inscripción a Cursos"
+        showPlanSelector={true}
+        planSeleccionado={planSeleccionado}
+        setPlanSeleccionado={setPlanSeleccionado}
+      />
       <div style={styles.container}>
         <Notification
           show={notification.show}
@@ -237,19 +242,6 @@ export default function InscripcionCursosPage() {
           message={notification.message}
           onClose={closeNotification}
         />
-
-        {/* Selector de plan de estudios */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
-          <select
-            style={inscripcionStyles.carreraSelect}
-            value={planSeleccionado}
-            onChange={(e) => setPlanSeleccionado(e.target.value)}
-          >
-            {alumno.codigosPlanesDeEstudio && alumno.codigosPlanesDeEstudio.map(codigo => (
-              <option key={codigo} value={codigo}>{codigo}</option>
-            ))}
-          </select>
-        </div>
 
       {/* Tabs de navegación */}
       <div style={inscripcionStyles.tabsContainer}>

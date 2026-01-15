@@ -78,6 +78,7 @@ export default function HomePage() {
   const [alumno, setAlumno] = useState(null);
   const [loading, setLoading] = useState(true);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [planSeleccionado, setPlanSeleccionado] = useState('');
   const { notification, showNotification, closeNotification } = useNotification();
   const navigate = useNavigate();
 
@@ -126,6 +127,11 @@ export default function HomePage() {
 
         const response = await getAlumnoActual();
         setAlumno(response.data);
+
+        // Seleccionar el primer plan de estudios por defecto
+        if (response.data.codigosPlanesDeEstudio && response.data.codigosPlanesDeEstudio.length > 0) {
+          setPlanSeleccionado(response.data.codigosPlanesDeEstudio[0]);
+        }
       } catch (err) {
         console.error('Error al cargar datos del alumno:', err);
         const errorMessage = getErrorMessage(err, 'Error al cargar los datos del alumno.');
@@ -164,7 +170,12 @@ export default function HomePage() {
         onClose={closeNotification}
       />
 
-      <Header title="Portal Académico" />
+      <Header
+        title="Portal Académico"
+        showPlanSelector={true}
+        planSeleccionado={planSeleccionado}
+        setPlanSeleccionado={setPlanSeleccionado}
+      />
 
       <div style={homeStyles.welcomeSection}>
         <h2 style={homeStyles.welcomeTitle}>

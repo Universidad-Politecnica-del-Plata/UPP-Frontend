@@ -127,7 +127,12 @@ export default function MisInscripcionesPage() {
 
   return (
     <>
-      <Header title="Mis Inscripciones" />
+      <Header
+        title="Mis Inscripciones"
+        showPlanSelector={true}
+        planSeleccionado={planSeleccionado}
+        setPlanSeleccionado={setPlanSeleccionado}
+      />
       <div style={styles.container}>
         <Notification
           show={notification.show}
@@ -135,21 +140,6 @@ export default function MisInscripcionesPage() {
           message={notification.message}
           onClose={closeNotification}
         />
-
-        {/* Selector de plan de estudios */}
-        {alumno && alumno.codigosPlanesDeEstudio && alumno.codigosPlanesDeEstudio.length > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
-            <select
-              style={inscripcionStyles.carreraSelect}
-              value={planSeleccionado}
-              onChange={(e) => setPlanSeleccionado(e.target.value)}
-            >
-              {alumno.codigosPlanesDeEstudio.map(codigo => (
-                <option key={codigo} value={codigo}>{codigo}</option>
-              ))}
-            </select>
-          </div>
-        )}
 
       <div style={inscripcionStyles.tabsContainer}>
         <button

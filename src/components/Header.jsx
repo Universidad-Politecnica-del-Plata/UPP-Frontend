@@ -78,10 +78,19 @@ const headerStyles = {
     alignItems: 'center',
     gap: '8px',
   },
+  planSelect: {
+    padding: '8px 16px',
+    borderRadius: '4px',
+    border: '1px solid #D1D5DB',
+    fontSize: '14px',
+    minWidth: '200px',
+    backgroundColor: 'white',
+  },
 };
 
-export default function Header({ title }) {
+export default function Header({ title, planSeleccionado, setPlanSeleccionado, showPlanSelector = false }) {
   const [user, setUser] = useState(null);
+  const [alumno, setAlumno] = useState(null);
   const { logout, user: authUser } = useAuth();
   const navigate = useNavigate();
 
@@ -91,6 +100,7 @@ export default function Header({ title }) {
       if (authUser?.roles?.includes('ROLE_ALUMNO')) {
         try {
           const response = await getAlumnoActual();
+          setAlumno(response.data);
           setUser({
             nombre: response.data.nombre,
             apellido: response.data.apellido,
@@ -160,6 +170,17 @@ export default function Header({ title }) {
         </div>
 
         <div style={headerStyles.userSection}>
+          {showPlanSelector && alumno && alumno.codigosPlanesDeEstudio && alumno.codigosPlanesDeEstudio.length > 0 && (
+            <select
+              style={headerStyles.planSelect}
+              value={planSeleccionado}
+              onChange={(e) => setPlanSeleccionado(e.target.value)}
+            >
+              {alumno.codigosPlanesDeEstudio.map(codigo => (
+                <option key={codigo} value={codigo}>{codigo}</option>
+              ))}
+            </select>
+          )}
           <div style={headerStyles.userInfo}>
             <p style={headerStyles.userName}>
               {user ? (user.apellido ? `${user.nombre} ${user.apellido}` : user.nombre) : 'Usuario'}
