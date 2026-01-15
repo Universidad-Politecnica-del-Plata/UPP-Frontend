@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {styles} from '../styles/upp-style';
 import {confirmationModalStyles} from '../styles/confirm-modal-styles'
+import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getTodosCuatrimestres, deleteCuatrimestre } from '../api/cuatrimestresApi';
@@ -108,15 +109,15 @@ export default function CuatrimestrePage() {
   const totalPages = Math.ceil(filteredCuatrimestres.length / cuatrimestresPerPage);
 
   return (
-    <div style={styles.container}>
-       <Notification
-      show={notification.show}
-      type={notification.type}
-      message={notification.message}
-      onClose={closeNotification}
-    />
-
-      <h1 style={styles.heading}>Gestión de Cuatrimestres</h1>
+    <>
+      <Header title="Gestión de Cuatrimestres" />
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
       <div style={styles.filtersContainer}>
         <div style={styles.filtersGrid}>
@@ -269,6 +270,7 @@ export default function CuatrimestrePage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

@@ -4,6 +4,7 @@ import { inscripcionStyles } from '../styles/inscripcion-cursos-styles';
 import { styles } from '../styles/upp-style';
 import { confirmationModalStyles } from '../styles/confirm-modal-styles';
 import Notification from '../components/Notification';
+import Header from '../components/Header';
 import { useNotification } from '../hooks/useNotification';
 import { getAlumnoActual } from '../api/alumnosApi';
 import { getCursosPorPlanDeEstudios } from '../api/cursosApi';
@@ -227,38 +228,28 @@ export default function InscripcionCursosPage() {
   }
 
   return (
-    <div style={styles.container}>
-      <Notification
-        show={notification.show}
-        type={notification.type}
-        message={notification.message}
-        onClose={closeNotification}
-      />
+    <>
+      <Header title="Inscripción a Cursos" />
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
-      {/* Header con fondo azul */}
-      <div style={inscripcionStyles.pageHeader}>
-        <div style={inscripcionStyles.headerLeft}>
-          <button
-            style={inscripcionStyles.homeButton}
-            onClick={() => navigate('/')}
-            title="Ir al inicio"
+        {/* Selector de plan de estudios */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
+          <select
+            style={inscripcionStyles.carreraSelect}
+            value={planSeleccionado}
+            onChange={(e) => setPlanSeleccionado(e.target.value)}
           >
-            🏠
-          </button>
-          <h1 style={inscripcionStyles.pageTitle}>
-            {alumno.nombre} {alumno.apellido} - Inscripción a Cursos
-          </h1>
+            {alumno.codigosPlanesDeEstudio && alumno.codigosPlanesDeEstudio.map(codigo => (
+              <option key={codigo} value={codigo}>{codigo}</option>
+            ))}
+          </select>
         </div>
-        <select
-          style={inscripcionStyles.carreraSelect}
-          value={planSeleccionado}
-          onChange={(e) => setPlanSeleccionado(e.target.value)}
-        >
-          {alumno.codigosPlanesDeEstudio && alumno.codigosPlanesDeEstudio.map(codigo => (
-            <option key={codigo} value={codigo}>{codigo}</option>
-          ))}
-        </select>
-      </div>
 
       {/* Tabs de navegación */}
       <div style={inscripcionStyles.tabsContainer}>
@@ -608,6 +599,7 @@ export default function InscripcionCursosPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

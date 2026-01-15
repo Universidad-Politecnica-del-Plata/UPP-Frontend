@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {styles} from '../styles/upp-style';
 import {confirmationModalStyles} from '../styles/confirm-modal-styles'
+import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getTodosPlanesDeEstudio, deletePlanDeEstudios } from '../api/planDeEstudiosApi';
@@ -109,15 +110,15 @@ export default function PlanesDeEstudioPage() {
   const totalPages = Math.ceil(filteredPlanes.length / planesPerPage);
 
   return (
-    <div style={styles.container}>
-       <Notification
-      show={notification.show}
-      type={notification.type}
-      message={notification.message}
-      onClose={closeNotification}
-    />
-
-      <h1 style={styles.heading}>Gestión de Planes de Estudio</h1>
+    <>
+      <Header title="Gestión de Planes de Estudio" />
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
       <div style={styles.filtersContainer}>
         <div style={styles.filtersGrid}>
@@ -268,6 +269,7 @@ export default function PlanesDeEstudioPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,7 +1,7 @@
 export const loginStyles = {
   container: {
     minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F9FAFB',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -19,7 +19,7 @@ export const loginStyles = {
     minHeight: '500px',
   },
   leftPanel: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: '#1F2937',
     color: 'white',
     padding: '40px',
     flex: '1',
@@ -53,7 +53,7 @@ export const loginStyles = {
   checkIcon: {
     marginRight: '12px',
     fontSize: '18px',
-    color: '#90CDF4',
+    color: '#D1D5DB',
   },
   buildingIcon: {
     textAlign: 'center',
@@ -70,7 +70,7 @@ export const loginStyles = {
   loginTitle: {
     fontSize: '24px',
     fontWeight: 'bold',
-    color: '#4A90E2',
+    color: '#1F2937',
     textAlign: 'center',
     marginBottom: '30px',
   },
@@ -95,11 +95,11 @@ export const loginStyles = {
     boxSizing: 'border-box',
   },
   inputFocus: {
-    borderColor: '#4A90E2',
+    borderColor: '#1F2937',
   },
   loginButton: {
     width: '100%',
-    backgroundColor: '#4A90E2',
+    backgroundColor: '#374151',
     color: 'white',
     border: 'none',
     padding: '12px',
@@ -111,14 +111,14 @@ export const loginStyles = {
     transition: 'background-color 0.2s',
   },
   loginButtonHover: {
-    backgroundColor: '#357ABD',
+    backgroundColor: '#4B5563',
   },
   forgotPassword: {
     textAlign: 'center',
     marginBottom: '30px',
   },
   forgotPasswordLink: {
-    color: '#4A90E2',
+    color: '#374151',
     textDecoration: 'underline',
     cursor: 'pointer',
     fontSize: '14px',

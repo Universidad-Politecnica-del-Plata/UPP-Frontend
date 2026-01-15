@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {styles} from '../styles/upp-style';
 import {confirmationModalStyles} from '../styles/confirm-modal-styles'
 import Notification from '../components/Notification';
+import Header from '../components/Header';
 import { useNotification } from '../hooks/useNotification';
 import { getTodasMaterias, deleteMateria } from '../api/materiasApi';
 import { getErrorMessage } from '../utils/errorHandler';
@@ -128,15 +129,15 @@ export default function MateriasPage() {
   };
 
   return (
-    <div style={styles.container}>
-       <Notification
-      show={notification.show}
-      type={notification.type}
-      message={notification.message}
-      onClose={closeNotification}
-    />
-
-      <h1 style={styles.heading}>Gestión de Materias</h1>
+    <>
+      <Header title="Gestión de Materias" />
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
       <div style={styles.filtersContainer}>
         <div style={styles.filtersGrid}>
@@ -317,6 +318,7 @@ export default function MateriasPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

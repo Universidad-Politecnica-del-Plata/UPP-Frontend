@@ -1,78 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { styles } from '../styles/upp-style';
 import Notification from '../components/Notification';
+import Header from '../components/Header';
 import { useNotification } from '../hooks/useNotification';
 import { getAlumnoActual } from '../api/alumnosApi';
 import { getErrorMessage } from '../utils/errorHandler';
-import { useAuth } from '../contexts/AuthContext';
 
 const homeStyles = {
   pageContainer: {
     minHeight: '100vh',
     backgroundColor: '#F9FAFB',
-  },
-  header: {
-    backgroundColor: '#1F2937',
-    color: 'white',
-    padding: '24px 0',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-  },
-  headerContent: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    padding: '0 24px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
-  },
-  universityIcon: {
-    fontSize: '40px',
-  },
-  headerTitle: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    margin: 0,
-  },
-  headerSubtitle: {
-    fontSize: '14px',
-    color: '#D1D5DB',
-    margin: '4px 0 0 0',
-  },
-  userSection: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
-  },
-  userInfo: {
-    textAlign: 'right',
-  },
-  userName: {
-    fontSize: '16px',
-    fontWeight: '600',
-    margin: 0,
-  },
-  userRole: {
-    fontSize: '12px',
-    color: '#D1D5DB',
-    margin: '4px 0 0 0',
-  },
-  logoutButton: {
-    background: '#374151',
-    color: 'white',
-    padding: '8px 16px',
-    borderRadius: '4px',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '14px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
   },
   welcomeSection: {
     maxWidth: '1200px',
@@ -142,7 +79,6 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [hoveredCard, setHoveredCard] = useState(null);
   const { notification, showNotification, closeNotification } = useNotification();
-  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const menuItems = [
@@ -207,11 +143,6 @@ export default function HomePage() {
     fetchAlumno();
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   const handleCardClick = (route) => {
     navigate(route);
   };
@@ -233,34 +164,7 @@ export default function HomePage() {
         onClose={closeNotification}
       />
 
-      <header style={homeStyles.header}>
-        <div style={homeStyles.headerContent}>
-          <div style={homeStyles.headerLeft}>
-            <span style={homeStyles.universityIcon}>🏛️</span>
-            <div>
-              <h1 style={homeStyles.headerTitle}>Portal Académico</h1>
-              <p style={homeStyles.headerSubtitle}>Universidad Politécnica del Plata</p>
-            </div>
-          </div>
-
-          <div style={homeStyles.userSection}>
-            <div style={homeStyles.userInfo}>
-              <p style={homeStyles.userName}>
-                {alumno ? `${alumno.nombre} ${alumno.apellido}` : 'Usuario'}
-              </p>
-              <p style={homeStyles.userRole}>Estudiante</p>
-            </div>
-            <button
-              style={homeStyles.logoutButton}
-              onClick={handleLogout}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#4B5563'}
-              onMouseOut={(e) => e.target.style.backgroundColor = '#374151'}
-            >
-              Cerrar Sesión
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header title="Portal Académico" />
 
       <div style={homeStyles.welcomeSection}>
         <h2 style={homeStyles.welcomeTitle}>

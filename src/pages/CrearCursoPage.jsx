@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import {styles} from '../styles/upp-style'
 import { useNavigate } from 'react-router-dom';
 import {iconStyles} from '../styles/icon-styles'
+import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { createCurso } from '../api/cursosApi';
@@ -64,24 +65,22 @@ const CrearCursoPage = () => {
   };
 
   return (
-    <div style={styles.container}>
-
+    <>
+      <Header title="Crear Curso" />
+      <div style={styles.container}>
         <Notification
-      show={notification.show}
-      type={notification.type}
-      message={notification.message}
-      onClose={closeNotification}
-    />
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
-
-      <div style={styles.header}>
-        <button style={styles.headerButton} onClick={() => navigate('/GestionCursos')}>
-          <span style={iconStyles.arrowLeft}>←</span>
-          <span style={styles.headerButtonText}>Volver a Gestión de Cursos</span>
-        </button>
-      </div>
-
-      <h1 style={styles.heading}>Nuevo Curso</h1>
+        <div style={styles.header}>
+          <button style={styles.headerButton} onClick={() => navigate('/GestionCursos')}>
+            <span style={iconStyles.arrowLeft}>←</span>
+            <span style={styles.headerButtonText}>Volver a Gestión de Cursos</span>
+          </button>
+        </div>
 
       <div style={styles.formContainer}>
         <div style={styles.formGrid}>
@@ -151,7 +150,8 @@ const CrearCursoPage = () => {
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

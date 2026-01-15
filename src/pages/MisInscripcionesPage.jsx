@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { inscripcionStyles } from '../styles/inscripcion-cursos-styles';
 import { styles } from '../styles/upp-style';
 import Notification from '../components/Notification';
+import Header from '../components/Header';
 import { useNotification } from '../hooks/useNotification';
 import { getMisInscripciones } from '../api/inscripcionesApi';
 import { getCurso } from '../api/cursosApi';
@@ -125,39 +126,30 @@ export default function MisInscripcionesPage() {
   }
 
   return (
-    <div style={styles.container}>
-      <Notification
-        show={notification.show}
-        type={notification.type}
-        message={notification.message}
-        onClose={closeNotification}
-      />
+    <>
+      <Header title="Mis Inscripciones" />
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
-      <div style={inscripcionStyles.pageHeader}>
-        <div style={inscripcionStyles.headerLeft}>
-          <button
-            style={inscripcionStyles.homeButton}
-            onClick={() => navigate('/')}
-            title="Ir al inicio"
-          >
-            🏠
-          </button>
-          <h1 style={inscripcionStyles.pageTitle}>
-            {alumno ? `${alumno.nombre} ${alumno.apellido} - ` : ''}Mis Inscripciones
-          </h1>
-        </div>
+        {/* Selector de plan de estudios */}
         {alumno && alumno.codigosPlanesDeEstudio && alumno.codigosPlanesDeEstudio.length > 0 && (
-          <select
-            style={inscripcionStyles.carreraSelect}
-            value={planSeleccionado}
-            onChange={(e) => setPlanSeleccionado(e.target.value)}
-          >
-            {alumno.codigosPlanesDeEstudio.map(codigo => (
-              <option key={codigo} value={codigo}>{codigo}</option>
-            ))}
-          </select>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '24px' }}>
+            <select
+              style={inscripcionStyles.carreraSelect}
+              value={planSeleccionado}
+              onChange={(e) => setPlanSeleccionado(e.target.value)}
+            >
+              {alumno.codigosPlanesDeEstudio.map(codigo => (
+                <option key={codigo} value={codigo}>{codigo}</option>
+              ))}
+            </select>
+          </div>
         )}
-      </div>
 
       <div style={inscripcionStyles.tabsContainer}>
         <button
@@ -343,6 +335,7 @@ export default function MisInscripcionesPage() {
           )}
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 }

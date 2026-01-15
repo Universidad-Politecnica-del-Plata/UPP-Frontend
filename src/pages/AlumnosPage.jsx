@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {styles} from '../styles/upp-style';
 import {confirmationModalStyles} from '../styles/confirm-modal-styles'
+import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getTodosLosAlumnosActivos, deleteAlumno } from '../api/alumnosApi';
@@ -114,15 +115,15 @@ export default function AlumnosPage() {
   const totalPages = Math.ceil(filteredAlumnos.length / alumnosPerPage);
 
   return (
-    <div style={styles.container}>
-       <Notification
-      show={notification.show}
-      type={notification.type}
-      message={notification.message}
-      onClose={closeNotification}
-    />
-
-      <h1 style={styles.heading}>Gestión de Alumnos</h1>
+    <>
+      <Header title="Gestión de Alumnos" />
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
       <div style={styles.filtersContainer}>
         <div style={styles.filtersGrid}>
@@ -288,6 +289,7 @@ export default function AlumnosPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

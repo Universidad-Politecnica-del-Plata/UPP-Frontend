@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {styles} from '../styles/upp-style';
 import {confirmationModalStyles} from '../styles/confirm-modal-styles'
+import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getTodasActas, getActasPorCurso, actualizarEstadoActa } from '../api/actasApi';
@@ -154,15 +155,15 @@ export default function ActasPage() {
   const totalPages = Math.ceil(filteredActas.length / actasPerPage);
 
   return (
-    <div style={styles.container}>
-       <Notification
-      show={notification.show}
-      type={notification.type}
-      message={notification.message}
-      onClose={closeNotification}
-    />
-
-      <h1 style={styles.heading}>Gestión de Actas</h1>
+    <>
+      <Header title="Gestión de Actas" />
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
       <div style={styles.filtersContainer}>
         <div style={{
@@ -384,6 +385,7 @@ export default function ActasPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { styles } from '../styles/upp-style'
 import { useNavigate, useParams } from 'react-router-dom';
+import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { iconStyles } from '../styles/icon-styles';
@@ -139,23 +140,22 @@ const EditCarreraForm = () => {
   }
 
   return (
-    <div style={styles.container}>
-      
-      <Notification
-      show={notification.show}
-      type={notification.type}
-      message={notification.message}
-      onClose={closeNotification}
-    />
+    <>
+      <Header title="Editar Carrera" />
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
-      <div style={styles.header}>
-        <button style={styles.headerButton} onClick={() => navigate('/GestionCarreras')}>
-          <span style={iconStyles.arrowLeft}>←</span>
-          <span style={styles.headerButtonText}>Volver a Gestión de Carreras</span>
-        </button>
-      </div>
-
-      <h1 style={styles.heading}>Editar Carrera</h1>
+        <div style={styles.header}>
+          <button style={styles.headerButton} onClick={() => navigate('/GestionCarreras')}>
+            <span style={iconStyles.arrowLeft}>←</span>
+            <span style={styles.headerButtonText}>Volver a Gestión de Carreras</span>
+          </button>
+        </div>
 
       <div style={styles.formContainer}>
         <div style={styles.formGrid}>
@@ -252,7 +252,8 @@ const EditCarreraForm = () => {
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
