@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -12,17 +11,7 @@ const UnauthorizedPage = () => {
   };
 
   const handleGoHome = () => {
-    // Redirigir a una página por defecto según el rol del usuario
-    if (user?.roles?.includes('ROLE_GESTION_ACADEMICA')) {
-      navigate('/GestionMaterias');
-    } else if (user?.roles?.includes('ROLE_GESTION_ESTUDIANTIL')) {
-      navigate('/GestionAlumnos');
-    }else if (user?.roles?.includes('ROLE_GESTOR_DE_PLANIFICACION')) {
-      navigate('/GestionCursos');
-    }  
-    else {
-      navigate('/login');
-    }
+    navigate('/home');
   };
 
   return (

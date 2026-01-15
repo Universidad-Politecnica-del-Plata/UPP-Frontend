@@ -141,32 +141,6 @@ export default function MisInscripcionesPage() {
           onClose={closeNotification}
         />
 
-      <div style={inscripcionStyles.tabsContainer}>
-        <button
-          style={inscripcionStyles.tab}
-          onClick={() => navigate('/InscripcionCursos')}
-        >
-          Todos los Cursos
-        </button>
-        <button
-          style={{
-            ...inscripcionStyles.tab,
-            ...inscripcionStyles.tabActive
-          }}
-        >
-          Mis Inscripciones
-        </button>
-        <button
-          style={{
-            ...inscripcionStyles.tab,
-            ...inscripcionStyles.tabLast
-          }}
-          onClick={() => navigate('/InscripcionCursos')}
-        >
-          Materias del Plan
-        </button>
-      </div>
-
       <div style={inscripcionStyles.filtersRow}>
         <div style={inscripcionStyles.filterGroup}>
           <label style={inscripcionStyles.filterLabel}>Modalidad</label>

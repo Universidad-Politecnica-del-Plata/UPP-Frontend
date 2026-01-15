@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Notification from '../components/Notification';
 import Header from '../components/Header';
 import { useNotification } from '../hooks/useNotification';
+import { useAuth } from '../contexts/AuthContext';
 import { getAlumnoActual } from '../api/alumnosApi';
 import { getErrorMessage } from '../utils/errorHandler';
 
@@ -74,47 +75,130 @@ const homeStyles = {
   },
 };
 
+// Definir menuItems por rol
+const getMenuItemsByRole = (roles) => {
+  const menuItemsByRole = {
+    ROLE_ALUMNO: [
+      {
+        id: 'plan-estudios',
+        title: 'Plan de Estudios',
+        description: 'Consultá tu malla curricular y materias del plan',
+        icon: '📚',
+        route: '/MateriasDelPlan',
+      },
+      {
+        id: 'historia-academica',
+        title: 'Historia Académica',
+        description: 'Revisá tus calificaciones y progreso académico',
+        icon: '📊',
+        route: '/HistoriaAcademica',
+      },
+      {
+        id: 'inscripcion-cursos',
+        title: 'Inscripción a Cursos',
+        description: 'Inscribite a las materias del próximo período',
+        icon: '📝',
+        route: '/InscripcionCursos',
+      },
+      {
+        id: 'mis-inscripciones',
+        title: 'Mis Inscripciones',
+        description: 'Consultá tus inscripciones actuales',
+        icon: '✓',
+        route: '/MisInscripciones',
+      },
+    ],
+    ROLE_DOCENTE: [
+      {
+        id: 'gestion-actas',
+        title: 'Gestión de Actas',
+        description: 'Administrá actas de finales y cursadas',
+        icon: '📋',
+        route: '/GestionActas',
+      },
+      {
+        id: 'abrir-acta',
+        title: 'Abrir Nueva Acta',
+        description: 'Creá una nueva acta para tus cursos',
+        icon: '➕',
+        route: '/AbrirActa',
+      },
+    ],
+    ROLE_GESTION_ACADEMICA: [
+      {
+        id: 'gestion-materias',
+        title: 'Gestión de Materias',
+        description: 'Administrá las materias del sistema',
+        icon: '📖',
+        route: '/GestionMaterias',
+      },
+      {
+        id: 'gestion-carreras',
+        title: 'Gestión de Carreras',
+        description: 'Administrá las carreras disponibles',
+        icon: '🎓',
+        route: '/GestionCarreras',
+      },
+      {
+        id: 'gestion-planes',
+        title: 'Planes de Estudio',
+        description: 'Administrá los planes de estudio',
+        icon: '📚',
+        route: '/GestionPlanesDeEstudio',
+      },
+    ],
+    ROLE_GESTION_ESTUDIANTIL: [
+      {
+        id: 'gestion-alumnos',
+        title: 'Gestión de Alumnos',
+        description: 'Administrá los alumnos del sistema',
+        icon: '👥',
+        route: '/GestionAlumnos',
+      },
+    ],
+    ROLE_GESTOR_DE_PLANIFICACION: [
+      {
+        id: 'gestion-cursos',
+        title: 'Gestión de Cursos',
+        description: 'Administrá los cursos disponibles',
+        icon: '📝',
+        route: '/GestionCursos',
+      },
+      {
+        id: 'gestion-cuatrimestres',
+        title: 'Gestión de Cuatrimestres',
+        description: 'Administrá los períodos académicos',
+        icon: '📅',
+        route: '/GestionCuatrimestres',
+      },
+    ],
+  };
+
+  // Obtener el primer rol del usuario y retornar sus menuItems
+  const userRole = roles?.find(role => menuItemsByRole[role]);
+  return menuItemsByRole[userRole] || [];
+};
+
 export default function HomePage() {
   const [alumno, setAlumno] = useState(null);
   const [loading, setLoading] = useState(true);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [planSeleccionado, setPlanSeleccionado] = useState('');
   const { notification, showNotification, closeNotification } = useNotification();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  const menuItems = [
-    {
-      id: 'plan-estudios',
-      title: 'Plan de Estudios',
-      description: 'Consultá tu malla curricular y materias del plan',
-      icon: '📚',
-      route: '/InscripcionCursos',
-    },
-    {
-      id: 'historia-academica',
-      title: 'Historia Académica',
-      description: 'Revisá tus calificaciones y progreso académico',
-      icon: '📊',
-      route: '/HistoriaAcademica',
-    },
-    {
-      id: 'inscripcion-cursos',
-      title: 'Inscripción a Cursos',
-      description: 'Inscribite a las materias del próximo período',
-      icon: '📝',
-      route: '/InscripcionCursos',
-    },
-    {
-      id: 'mis-inscripciones',
-      title: 'Mis Inscripciones',
-      description: 'Consultá tus inscripciones actuales',
-      icon: '✓',
-      route: '/MisInscripciones',
-    },
-  ];
+  const menuItems = getMenuItemsByRole(user?.roles);
+  const isAlumno = user?.roles?.includes('ROLE_ALUMNO');
 
   useEffect(() => {
     const fetchAlumno = async () => {
+      // Solo cargar datos de alumno si el usuario tiene el rol ROLE_ALUMNO
+      if (!isAlumno) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         const token = localStorage.getItem('authToken');
@@ -147,7 +231,7 @@ export default function HomePage() {
     };
 
     fetchAlumno();
-  }, []);
+  }, [isAlumno]);
 
   const handleCardClick = (route) => {
     navigate(route);
@@ -161,6 +245,22 @@ export default function HomePage() {
     );
   }
 
+  // Determinar el nombre de usuario según el rol
+  const getUserName = () => {
+    if (isAlumno && alumno) {
+      return alumno.nombre;
+    }
+    return user?.username || '';
+  };
+
+  // Determinar el subtítulo según el rol
+  const getSubtitle = () => {
+    if (isAlumno) {
+      return 'Accedé a todas las herramientas para gestionar tu vida académica';
+    }
+    return 'Accedé a las herramientas de gestión del sistema';
+  };
+
   return (
     <div style={homeStyles.pageContainer}>
       <Notification
@@ -172,17 +272,17 @@ export default function HomePage() {
 
       <Header
         title="Portal Académico"
-        showPlanSelector={true}
+        showPlanSelector={isAlumno}
         planSeleccionado={planSeleccionado}
         setPlanSeleccionado={setPlanSeleccionado}
       />
 
       <div style={homeStyles.welcomeSection}>
         <h2 style={homeStyles.welcomeTitle}>
-          Bienvenido{alumno ? `, ${alumno.nombre}` : ''}
+          Bienvenido{getUserName() ? `, ${getUserName()}` : ''}
         </h2>
         <p style={homeStyles.welcomeSubtitle}>
-          Accedé a todas las herramientas para gestionar tu vida académica
+          {getSubtitle()}
         </p>
       </div>
 

@@ -143,17 +143,7 @@ export default function Header({ title, planSeleccionado, setPlanSeleccionado, s
   };
 
   const handleHome = () => {
-    if (authUser?.roles?.includes('ROLE_ALUMNO')) {
-      navigate('/home');
-    } else if (authUser?.roles?.includes('ROLE_GESTION_ACADEMICA')) {
-      navigate('/GestionMaterias');
-    } else if (authUser?.roles?.includes('ROLE_GESTION_ESTUDIANTIL')) {
-      navigate('/GestionAlumnos');
-    } else if (authUser?.roles?.includes('ROLE_GESTOR_DE_PLANIFICACION')) {
-      navigate('/GestionCursos');
-    } else if (authUser?.roles?.includes('ROLE_DOCENTE')) {
-      navigate('/GestionActas');
-    }
+    navigate('/home');
   };
 
   return (

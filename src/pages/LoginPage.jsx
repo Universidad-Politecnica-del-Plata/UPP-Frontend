@@ -9,7 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated, user } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     dni: '',
     password: ''
@@ -21,21 +21,9 @@ const LoginPage = () => {
   // Redirigir si ya está autenticado
   React.useEffect(() => {
     if (isAuthenticated) {
-      if (user?.roles?.includes('ROLE_GESTION_ACADEMICA')) {
-        navigate('/GestionMaterias');
-      } else if (user?.roles?.includes('ROLE_GESTION_ESTUDIANTIL')) {
-        navigate('/GestionAlumnos');
-      } else if (user?.roles?.includes('ROLE_GESTOR_DE_PLANIFICACION')) {
-        navigate('/GestionCursos');
-      } else if (user?.roles?.includes('ROLE_ALUMNO')) {
-        navigate('/home');
-      } else if (user?.roles?.includes('ROLE_DOCENTE')) {
-        navigate('/GestionActas');
-      } else {
-        navigate('/login');
-      }
+      navigate('/home');
     }
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
