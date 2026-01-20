@@ -30,6 +30,7 @@ import MateriasDelPlanPage from "./pages/MateriasDelPlanPage.jsx";
 import ActasPage from "./pages/ActasPage.jsx";
 import AbrirActaPage from "./pages/AbrirActaPage.jsx";
 import VerActaPage from "./pages/VerActaPage.jsx";
+import MiCarreraPage from "./pages/MiCarreraPage.jsx";
 
 function App() {
   return (
@@ -171,6 +172,12 @@ function App() {
           <Route path="/MateriasDelPlan" element={
             <ProtectedRoute>
               <MateriasDelPlanPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/MiCarrera" element={
+            <ProtectedRoute requiredRole="ROLE_ALUMNO">
+              <MiCarreraPage />
             </ProtectedRoute>
           } />
 

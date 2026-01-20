@@ -24,6 +24,7 @@ export const ROLE_PERMISSIONS = {
   '/AbrirActa': ['ROLE_DOCENTE'],
   '/VerActa': ['ROLE_DOCENTE'],
   '/MateriasDelPlan': ['ROLE_ALUMNO'],
+  '/MiCarrera': ['ROLE_ALUMNO'],
   '/home': ['ROLE_ALUMNO', 'ROLE_DOCENTE', 'ROLE_GESTION_ACADEMICA', 'ROLE_GESTION_ESTUDIANTIL', 'ROLE_GESTOR_DE_PLANIFICACION'],
 };
 

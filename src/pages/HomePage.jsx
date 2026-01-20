@@ -80,6 +80,13 @@ const getMenuItemsByRole = (roles) => {
   const menuItemsByRole = {
     ROLE_ALUMNO: [
       {
+        id: 'mi-carrera',
+        title: 'Mi Carrera',
+        description: 'Consultá la información de tu carrera',
+        icon: '🎓',
+        route: '/MiCarrera',
+      },
+      {
         id: 'plan-estudios',
         title: 'Plan de Estudios',
         description: 'Consultá tu malla curricular y materias del plan',
