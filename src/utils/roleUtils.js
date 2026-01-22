@@ -25,6 +25,7 @@ export const ROLE_PERMISSIONS = {
   '/VerActa': ['ROLE_DOCENTE'],
   '/MateriasDelPlan': ['ROLE_ALUMNO'],
   '/MiCarrera': ['ROLE_ALUMNO'],
+  '/HistoriaAcademica': ['ROLE_ALUMNO'],
   '/home': ['ROLE_ALUMNO', 'ROLE_DOCENTE', 'ROLE_GESTION_ACADEMICA', 'ROLE_GESTION_ESTUDIANTIL', 'ROLE_GESTOR_DE_PLANIFICACION'],
 };
 

@@ -31,6 +31,7 @@ import ActasPage from "./pages/ActasPage.jsx";
 import AbrirActaPage from "./pages/AbrirActaPage.jsx";
 import VerActaPage from "./pages/VerActaPage.jsx";
 import MiCarreraPage from "./pages/MiCarreraPage.jsx";
+import HistoriaAcademicaPage from "./pages/HistoriaAcademicaPage.jsx";
 
 function App() {
   return (
@@ -178,6 +179,12 @@ function App() {
           <Route path="/MiCarrera" element={
             <ProtectedRoute requiredRole="ROLE_ALUMNO">
               <MiCarreraPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/HistoriaAcademica" element={
+            <ProtectedRoute requiredRole="ROLE_ALUMNO">
+              <HistoriaAcademicaPage />
             </ProtectedRoute>
           } />
 
