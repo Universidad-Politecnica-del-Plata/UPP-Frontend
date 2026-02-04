@@ -118,7 +118,7 @@ const LoginPage = () => {
           
           <div>
             <div style={loginStyles.formGroup}>
-              <label style={loginStyles.label}>USERNAME</label>
+              <label style={loginStyles.label}>Usuario</label>
               <input
                 style={loginStyles.input}
                 type="text"
