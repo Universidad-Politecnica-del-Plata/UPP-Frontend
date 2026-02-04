@@ -4,10 +4,11 @@ import { inscripcionStyles } from '../styles/inscripcion-cursos-styles';
 import { styles } from '../styles/upp-style';
 import { confirmationModalStyles } from '../styles/confirm-modal-styles';
 import Notification from '../components/Notification';
+import Header from '../components/Header';
 import { useNotification } from '../hooks/useNotification';
 import { getAlumnoActual } from '../api/alumnosApi';
 import { getCursosPorPlanDeEstudios } from '../api/cursosApi';
-import { getMateria, getTodasMaterias } from '../api/materiasApi';
+import { getMateria } from '../api/materiasApi';
 import { crearInscripcion } from '../api/inscripcionesApi';
 import { getErrorMessage } from '../utils/errorHandler';
 
@@ -15,12 +16,10 @@ export default function InscripcionCursosPage() {
   const [alumno, setAlumno] = useState(null);
   const [cursos, setCursos] = useState([]);
   const [materias, setMaterias] = useState({});
-  const [materiasDelPlan, setMateriasDelPlan] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMaterias, setLoadingMaterias] = useState(false);
   const { notification, showNotification, closeNotification } = useNotification();
 
-  const [tabActiva, setTabActiva] = useState('todos'); // 'todos', 'mis-cursos', 'habilitadas'
   const [planSeleccionado, setPlanSeleccionado] = useState('');
   const [filtroModalidad, setFiltroModalidad] = useState('todas');
   const [filtroTipo, setFiltroTipo] = useState('todas');
@@ -28,12 +27,8 @@ export default function InscripcionCursosPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const cursosPerPage = 5;
 
-  // Estado para el modal de confirmación
   const [modalData, setModalData] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
-  // Estado para acordeones de cuatrimestres
-  const [cuatrimestresExpandidos, setCuatrimestresExpandidos] = useState({});
 
   const navigate = useNavigate();
 
@@ -114,62 +109,6 @@ export default function InscripcionCursosPage() {
     fetchCursos();
   }, [planSeleccionado]);
 
-  // Cargar materias del plan cuando tab = 'habilitadas'
-  useEffect(() => {
-    const fetchMateriasDelPlan = async () => {
-      if (tabActiva !== 'habilitadas' || !planSeleccionado) return;
-
-      try {
-        setLoadingMaterias(true);
-        const response = await getTodasMaterias();
-        const materiasFiltradas = response.data.filter(
-          materia => materia.codigoPlanDeEstudios === planSeleccionado
-        );
-        setMateriasDelPlan(materiasFiltradas);
-      } catch (err) {
-        console.error('Error al cargar materias del plan:', err);
-        const errorMessage = getErrorMessage(err, 'Error al cargar las materias del plan.');
-        showNotification('error', errorMessage);
-      } finally {
-        setLoadingMaterias(false);
-      }
-    };
-
-    fetchMateriasDelPlan();
-  }, [tabActiva, planSeleccionado]);
-
-  // Agrupar materias por cuatrimestre
-  const materiasPorCuatrimestre = () => {
-    const filtradas = materiasDelPlan.filter(materia => {
-      const matchesBusqueda = busqueda === '' ||
-        materia.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-        materia.codigoDeMateria.toLowerCase().includes(busqueda.toLowerCase());
-
-      const matchesTipo = filtroTipo === 'todas' ||
-        (filtroTipo === 'obligatorias' && materia.tipo === 'OBLIGATORIA') ||
-        (filtroTipo === 'optativas' && materia.tipo === 'OPTATIVA');
-
-      return matchesBusqueda && matchesTipo;
-    });
-
-    const agrupadas = {};
-    filtradas.forEach(materia => {
-      const cuatrimestre = materia.cuatrimestre || 0;
-      if (!agrupadas[cuatrimestre]) {
-        agrupadas[cuatrimestre] = [];
-      }
-      agrupadas[cuatrimestre].push(materia);
-    });
-
-    return agrupadas;
-  };
-
-  const toggleCuatrimestre = (cuatrimestre) => {
-    setCuatrimestresExpandidos(prev => ({
-      ...prev,
-      [cuatrimestre]: !prev[cuatrimestre]
-    }));
-  };
 
   // Filtrar cursos
   const filteredCursos = cursos.filter(curso => {
@@ -227,70 +166,20 @@ export default function InscripcionCursosPage() {
   }
 
   return (
-    <div style={styles.container}>
-      <Notification
-        show={notification.show}
-        type={notification.type}
-        message={notification.message}
-        onClose={closeNotification}
+    <>
+      <Header
+        title="Inscripción a Cursos"
+        showPlanSelector={true}
+        planSeleccionado={planSeleccionado}
+        setPlanSeleccionado={setPlanSeleccionado}
       />
-
-      {/* Header con fondo azul */}
-      <div style={inscripcionStyles.pageHeader}>
-        <div style={inscripcionStyles.headerLeft}>
-          <button
-            style={inscripcionStyles.homeButton}
-            onClick={() => navigate('/')}
-            title="Ir al inicio"
-          >
-            🏠
-          </button>
-          <h1 style={inscripcionStyles.pageTitle}>
-            {alumno.nombre} {alumno.apellido} - Inscripción a Cursos
-          </h1>
-        </div>
-        <select
-          style={inscripcionStyles.carreraSelect}
-          value={planSeleccionado}
-          onChange={(e) => setPlanSeleccionado(e.target.value)}
-        >
-          {alumno.codigosPlanesDeEstudio && alumno.codigosPlanesDeEstudio.map(codigo => (
-            <option key={codigo} value={codigo}>{codigo}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Tabs de navegación */}
-      <div style={inscripcionStyles.tabsContainer}>
-        <button
-          style={{
-            ...inscripcionStyles.tab,
-            ...(tabActiva === 'todos' ? inscripcionStyles.tabActive : {})
-          }}
-          onClick={() => setTabActiva('todos')}
-        >
-          Todos los Cursos
-        </button>
-        <button
-          style={{
-            ...inscripcionStyles.tab,
-            ...(tabActiva === 'mis-cursos' ? inscripcionStyles.tabActive : {})
-          }}
-          onClick={() => navigate('/MisInscripciones')}
-        >
-          Mis Inscripciones
-        </button>
-        <button
-          style={{
-            ...inscripcionStyles.tab,
-            ...inscripcionStyles.tabLast,
-            ...(tabActiva === 'habilitadas' ? inscripcionStyles.tabActive : {})
-          }}
-          onClick={() => setTabActiva('habilitadas')}
-        >
-          Materias del Plan
-        </button>
-      </div>
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
       {/* Filtros */}
       <div style={inscripcionStyles.filtersRow}>
@@ -333,96 +222,11 @@ export default function InscripcionCursosPage() {
         </div>
       </div>
 
-      {/* Lista de cursos o materias según tab activa */}
+      {/* Lista de cursos */}
       {loadingMaterias ? (
         <div style={inscripcionStyles.loadingContainer}>
-          {tabActiva === 'habilitadas' ? 'Cargando materias...' : 'Cargando cursos...'}
+          Cargando cursos...
         </div>
-      ) : tabActiva === 'habilitadas' ? (
-        // Mostrar materias agrupadas por cuatrimestre
-        (() => {
-          const grouped = materiasPorCuatrimestre();
-          const cuatrimestres = Object.keys(grouped).sort((a, b) => parseInt(a) - parseInt(b));
-
-          return cuatrimestres.length === 0 ? (
-            <div style={inscripcionStyles.emptyState}>
-              No se encontraron materias para el plan de estudios seleccionado.
-            </div>
-          ) : (
-            cuatrimestres.map(cuatrimestre => {
-              const materiasDelCuatrimestre = grouped[cuatrimestre];
-              const isExpanded = cuatrimestresExpandidos[cuatrimestre];
-
-              return (
-                <div key={cuatrimestre} style={inscripcionStyles.cuatrimestreSection}>
-                  <div
-                    style={inscripcionStyles.cuatrimestreHeader}
-                    onClick={() => toggleCuatrimestre(cuatrimestre)}
-                  >
-                    <div style={inscripcionStyles.cuatrimestreTitle}>
-                      <span style={{
-                        ...inscripcionStyles.cuatrimestreIcon,
-                        ...(isExpanded ? inscripcionStyles.cuatrimestreIconExpanded : {})
-                      }}>
-                        ▶
-                      </span>
-                      📚 Cuatrimestre {cuatrimestre}
-                      <span style={inscripcionStyles.cuatrimestreCount}>
-                        ({materiasDelCuatrimestre.length} {materiasDelCuatrimestre.length === 1 ? 'materia' : 'materias'})
-                      </span>
-                    </div>
-                  </div>
-
-                  {isExpanded && (
-                    <div style={inscripcionStyles.cuatrimestreContent}>
-                      {materiasDelCuatrimestre.map(materia => {
-                        const tipo = materia.tipo || 'OBLIGATORIA';
-
-                        return (
-                          <div key={materia.codigoDeMateria} style={inscripcionStyles.cursoCard}>
-                            <div style={inscripcionStyles.cursoHeader}>
-                              <div style={inscripcionStyles.cursoTitleSection}>
-                                <h2 style={inscripcionStyles.cursoTitle}>
-                                  [{materia.codigoDeMateria}] {materia.nombre}
-                                </h2>
-                                <p style={inscripcionStyles.cursoSubtitle}>
-                                  {materia.contenidos || 'Sin descripción'}
-                                </p>
-                              </div>
-                              <div style={inscripcionStyles.cursoRightSection}>
-                                <span style={inscripcionStyles.creditosBadge}>
-                                  Créditos: {materia.creditosQueOtorga || 0}
-                                </span>
-                                <span
-                                  style={{
-                                    ...inscripcionStyles.tipoBadge,
-                                    ...(tipo === 'OBLIGATORIA'
-                                      ? inscripcionStyles.tipoBadgeObligatorio
-                                      : inscripcionStyles.tipoBadgeOptativo)
-                                  }}
-                                >
-                                  {tipo === 'OBLIGATORIA' ? 'Obligatoria' : 'Optativa'}
-                                </span>
-                              </div>
-                            </div>
-
-                            {materia.codigosCorrelativas && materia.codigosCorrelativas.length > 0 && (
-                              <div style={inscripcionStyles.cursoDetails}>
-                                <div style={inscripcionStyles.correlativasText}>
-                                  + Correlativas: {materia.codigosCorrelativas.join(', ')}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })
-          );
-        })()
       ) : currentCursos.length === 0 ? (
         <div style={inscripcionStyles.emptyState}>
           No se encontraron cursos para el plan de estudios seleccionado.
@@ -608,6 +412,7 @@ export default function InscripcionCursosPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

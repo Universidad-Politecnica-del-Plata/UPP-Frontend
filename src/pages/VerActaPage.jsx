@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {styles} from '../styles/upp-style';
 import {iconStyles} from '../styles/icon-styles';
+import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getActa, getNotasPorActa, agregarNotasMasivas, actualizarEstadoActa, getAlumnosInscriptos } from '../api/actasApi';
@@ -179,24 +180,22 @@ const VerActaPage = () => {
   }
 
   return (
-    <div style={styles.container}>
-      <Notification
-        show={notification.show}
-        type={notification.type}
-        message={notification.message}
-        onClose={closeNotification}
-      />
+    <>
+      <Header title={`Carga de Notas de ${acta.tipoDeActa === 'FINAL' ? 'Final' : 'Cursada'}`} />
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
-      <div style={styles.header}>
-        <button style={styles.headerButton} onClick={() => navigate('/GestionActas')}>
-          <span style={iconStyles.arrowLeft}>←</span>
-          <span style={styles.headerButtonText}>Volver a Gestión de Actas</span>
-        </button>
-      </div>
-
-      <h1 style={styles.heading}>
-        Carga de Notas de {acta.tipoDeActa === 'FINAL' ? 'Final' : 'Cursada'}
-      </h1>
+        <div style={styles.header}>
+          <button style={styles.headerButton} onClick={() => navigate('/GestionActas')}>
+            <span style={iconStyles.arrowLeft}>←</span>
+            <span style={styles.headerButtonText}>Volver a Gestión de Actas</span>
+          </button>
+        </div>
 
       <div style={{
         ...styles.formContainer,
@@ -341,7 +340,8 @@ const VerActaPage = () => {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {styles} from '../styles/upp-style';
 import {confirmationModalStyles} from '../styles/confirm-modal-styles'
+import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getTodosCursos, deleteCurso } from '../api/cursosApi';
@@ -95,15 +96,15 @@ export default function CursosPage() {
   const totalPages = Math.ceil(filteredCursos.length / cursosPerPage);
 
   return (
-    <div style={styles.container}>
-       <Notification
-      show={notification.show}
-      type={notification.type}
-      message={notification.message}
-      onClose={closeNotification}
-    />
-
-      <h1 style={styles.heading}>Gestión de Cursos</h1>
+    <>
+      <Header title="Gestión de Cursos" />
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
       <div style={styles.filtersContainer}>
         <div style={styles.filtersGrid}>
@@ -236,6 +237,7 @@ export default function CursosPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

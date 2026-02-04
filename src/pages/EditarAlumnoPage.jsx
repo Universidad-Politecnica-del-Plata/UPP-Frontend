@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import {styles} from '../styles/upp-style'
 import { useNavigate, useParams } from 'react-router-dom';
 import {iconStyles} from '../styles/icon-styles'
+import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getAlumno, updateAlumno } from '../api/alumnosApi';
@@ -200,23 +201,22 @@ const EditarAlumnoForm = () => {
   }
 
   return (
-    <div style={styles.container}>
-      
+    <>
+      <Header title="Editar Alumno" />
+      <div style={styles.container}>
         <Notification
-      show={notification.show}
-      type={notification.type}
-      message={notification.message}
-      onClose={closeNotification}
-    />
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
-      <div style={styles.header}>
-        <button style={styles.headerButton} onClick={() => navigate('/GestionAlumnos')}>
-          <span style={iconStyles.arrowLeft}>←</span>
-          <span style={styles.headerButtonText}>Volver a Gestión de Alumnos</span>
-        </button>
-      </div>
-
-      <h1 style={styles.heading}>Editar Alumno</h1>
+        <div style={styles.header}>
+          <button style={styles.headerButton} onClick={() => navigate('/GestionAlumnos')}>
+            <span style={iconStyles.arrowLeft}>←</span>
+            <span style={styles.headerButtonText}>Volver a Gestión de Alumnos</span>
+          </button>
+        </div>
 
       <div style={styles.formContainer}>
         <div style={styles.formGrid}>
@@ -457,7 +457,8 @@ const EditarAlumnoForm = () => {
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

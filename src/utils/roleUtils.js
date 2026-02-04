@@ -23,6 +23,10 @@ export const ROLE_PERMISSIONS = {
   '/GestionActas': ['ROLE_DOCENTE'],
   '/AbrirActa': ['ROLE_DOCENTE'],
   '/VerActa': ['ROLE_DOCENTE'],
+  '/MateriasDelPlan': ['ROLE_ALUMNO'],
+  '/MiCarrera': ['ROLE_ALUMNO'],
+  '/HistoriaAcademica': ['ROLE_ALUMNO'],
+  '/home': ['ROLE_ALUMNO', 'ROLE_DOCENTE', 'ROLE_GESTION_ACADEMICA', 'ROLE_GESTION_ESTUDIANTIL', 'ROLE_GESTOR_DE_PLANIFICACION'],
 };
 
 // Rutas públicas que no requieren autenticación

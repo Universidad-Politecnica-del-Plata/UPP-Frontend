@@ -4,6 +4,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import LoginPage from "./pages/LoginPage.jsx";
+import HomePage from "./pages/HomePage.jsx";
 import MateriasPage from "./pages/MateriasPage.jsx";
 import CrearMateriaPage from "./pages/CrearMateriaPage.jsx";
 import EditarMateriaPage from "./pages/EditarMateriasPage.jsx";
@@ -25,9 +26,12 @@ import EditarCuatrimestrePage from "./pages/EditarCuatrimestrePage.jsx";
 import UnauthorizedPage from "./pages/UnauthorizedPage.jsx";
 import InscripcionCursosPage from "./pages/InscripcionCursosPage.jsx";
 import MisInscripcionesPage from "./pages/MisInscripcionesPage.jsx";
+import MateriasDelPlanPage from "./pages/MateriasDelPlanPage.jsx";
 import ActasPage from "./pages/ActasPage.jsx";
 import AbrirActaPage from "./pages/AbrirActaPage.jsx";
 import VerActaPage from "./pages/VerActaPage.jsx";
+import MiCarreraPage from "./pages/MiCarreraPage.jsx";
+import HistoriaAcademicaPage from "./pages/HistoriaAcademicaPage.jsx";
 
 function App() {
   return (
@@ -35,9 +39,15 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
-          
+
           <Route path="/login" element={<LoginPage />} />
-          
+
+          <Route path="/home" element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          } />
+
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
           
           <Route path="/GestionMaterias" element={
@@ -157,6 +167,24 @@ function App() {
           <Route path="/MisInscripciones" element={
             <ProtectedRoute>
               <MisInscripcionesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/MateriasDelPlan" element={
+            <ProtectedRoute>
+              <MateriasDelPlanPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/MiCarrera" element={
+            <ProtectedRoute requiredRole="ROLE_ALUMNO">
+              <MiCarreraPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/HistoriaAcademica" element={
+            <ProtectedRoute requiredRole="ROLE_ALUMNO">
+              <HistoriaAcademicaPage />
             </ProtectedRoute>
           } />
 

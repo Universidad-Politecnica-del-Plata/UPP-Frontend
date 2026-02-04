@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import {styles} from '../styles/upp-style'
 import { useNavigate } from 'react-router-dom';
 import {iconStyles} from '../styles/icon-styles'
+import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { crearActa } from '../api/actasApi';
@@ -77,22 +78,22 @@ const AbrirActaPage = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <Notification
-        show={notification.show}
-        type={notification.type}
-        message={notification.message}
-        onClose={closeNotification}
-      />
+    <>
+      <Header title="Abrir Nueva Acta" />
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
-      <div style={styles.header}>
-        <button style={styles.headerButton} onClick={() => navigate('/GestionActas')}>
-          <span style={iconStyles.arrowLeft}>←</span>
-          <span style={styles.headerButtonText}>Volver a Gestión de Actas</span>
-        </button>
-      </div>
-
-      <h1 style={styles.heading}>Abrir Nueva Acta</h1>
+        <div style={styles.header}>
+          <button style={styles.headerButton} onClick={() => navigate('/GestionActas')}>
+            <span style={iconStyles.arrowLeft}>←</span>
+            <span style={styles.headerButtonText}>Volver a Gestión de Actas</span>
+          </button>
+        </div>
 
       <div style={styles.formContainer}>
         <div style={styles.formGrid}>
@@ -150,7 +151,8 @@ const AbrirActaPage = () => {
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

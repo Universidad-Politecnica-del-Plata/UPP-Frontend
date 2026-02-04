@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {styles} from '../styles/upp-style';
 import {confirmationModalStyles} from '../styles/confirm-modal-styles'
+import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
 import { getTodasCarreras, deleteCarrera } from '../api/carrerasApi';
@@ -105,15 +106,15 @@ export default function CarrerasPage() {
   const totalPages = Math.ceil(filteredCarreras.length / carrerasPerPage);
 
   return (
-    <div style={styles.container}>
-       <Notification
-      show={notification.show}
-      type={notification.type}
-      message={notification.message}
-      onClose={closeNotification}
-    />
-
-      <h1 style={styles.heading}>Gestión de Carreras</h1>
+    <>
+      <Header title="Gestión de Carreras" />
+      <div style={styles.container}>
+        <Notification
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={closeNotification}
+        />
 
       <div style={styles.filtersContainer}>
         <div style={styles.filtersGrid}>
@@ -264,6 +265,7 @@ export default function CarrerasPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
