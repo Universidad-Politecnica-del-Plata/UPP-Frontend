@@ -125,7 +125,7 @@ const LoginPage = () => {
                 name="dni"
                 value={formData.dni}
                 onChange={handleChange}
-                placeholder="Ingresar DNI"
+                placeholder="Ingresar nombre de usuario"
               />
             </div>
             
