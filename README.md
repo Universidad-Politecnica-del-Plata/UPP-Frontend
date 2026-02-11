@@ -1,70 +1,139 @@
-# Getting Started with Create React UPP App
+# UPP Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Frontend del sistema de gestión universitaria UPP (Universidad Politécnica del Plata). Interfaz web para administrar materias, inscripciones y consultar información académica.
 
-## Available Scripts
+## Tecnologías
 
-In the project directory, you can run:
+- **React 19** con **Create React App**
+- **Tailwind CSS v4** para estilos
+- **Axios** para comunicación con API
+- **JWT** para autenticación
 
-### `npm start`
+## Cómo levantar la aplicación
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 1. Requisitos previos
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Node.js 16+
+- npm 8+
+- Backend UPP corriendo en `http://localhost:8080`
 
-### `npm test`
+### 2. Configurar variables de entorno
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Crear archivo `.env` en la raíz del proyecto:
 
-### `npm run build`
+```
+REACT_APP_API_ENDPOINT=http://localhost:8080
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 3. Instalar dependencias
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+npm install
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 4. Ejecutar
 
-### `npm run eject`
+```bash
+npm start
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+La aplicación se levanta en `http://localhost:3000`
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Estructura del código
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```
+src/
+├── pages/          # Componentes de página
+├── components/     # Componentes reutilizables
+├── api/            # Configuración de Axios y endpoints
+├── styles/         # Estilos centralizados
+└── App.js          # Configuración de rutas
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Comunicacion con API
 
-## Learn More
+### Configuración base (`src/api/api.js`)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Instancia de Axios con:
+- Base URL desde `REACT_APP_API_ENDPOINT`
+- Interceptor automático que agrega JWT Bearer token en cada request
+- Token de autenticacion almacenado en `localStorage` en la clave `authToken`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Endpoints disponibles
 
-### Code Splitting
+- **`loginApi.js`**: Login y autenticación
+- **`materiasApi.js`**: CRUD de materias
+- **`alumnosApi.js`**: CRUD de alumnos + historia académica
+- **`carrerasApi.js`**: CRUD de carreras
+- **`planDeEstudiosApi.js`**: CRUD de planes de estudio
+- **`cursosApi.js`**: CRUD de cursos + filtros por materia/plan
+- **`cuatrimestresApi.js`**: CRUD de cuatrimestres
+- **`inscripcionesApi.js`**: Inscripción a cursos + inscripciones del alumno
+- **`actasApi.js`**: Gestión de actas y notas
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Autenticación
 
-### Analyzing the Bundle Size
+El sistema usa JWT almacenado en localStorage. El token se agrega automáticamente a todas las requests mediante un interceptor de Axios.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```javascript
+// Ejemplo de uso desde el navegador
+localStorage.getItem('authToken') // Ver token actual
+```
 
-### Making a Progressive Web App
+## Arquitectura de estilos
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- **Tailwind**: Utilidades para layout y componentes base
+- **Style objects**: Estilos específicos de componentes en `src/styles/`
 
-### Advanced Configuration
+## Sistema de notificaciones
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Hook personalizado `useNotification` para feedback al usuario en operaciones CRUD y manejo de errores.
 
-### Deployment
+## Roles del sistema
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+El frontend se adapta según el rol del usuario autenticado:
 
-### `npm run build` fails to minify
+| Rol | Funcionalidades |
+|-----|-----------------|
+| ROLE_ALUMNO | Inscripción a cursos, consulta detalles de cursos, consulta de materias y consulta de historia académica |
+| ROLE_DOCENTE | Gestión de actas y notas |
+| ROLE_GESTION_ACADEMICA | ABM de materias, carreras y planes |
+| ROLE_GESTION_ESTUDIANTIL | ABM de alumnos |
+| ROLE_GESTOR_DE_PLANIFICACION | ABM de cursos y cuatrimestres |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Rutas principales
+
+(Rutas protegidas por rol [src/utils/roleUtils.js](src/utils/roleUtils.js)):
+
+- **Login y acceso base**: `/login`, `/home`
+- **Materias**: `/GestionMaterias`, `/CrearMateria`, `/EditarMateria/:codigoDeMateria`
+- **Planes**: `/GestionPlanesDeEstudio`, `/CrearPlanDeEstudio`, `/EditarPlanDeEstudios/:codigo`
+- **Carreras**: `/GestionCarreras`, `/CrearCarrera`, `/EditarCarrera/:codigo`
+- **Alumnos**: `/GestionAlumnos`, `/CrearAlumno`, `/EditarAlumno/:matricula`
+- **Cursos**: `/GestionCursos`, `/CrearCurso`, `/EditarCurso/:codigo`
+- **Cuatrimestres**: `/GestionCuatrimestres`, `/CrearCuatrimestre`, `/EditarCuatrimestre/:codigo`
+- **Inscripciones**: `/InscripcionCursos`, `/MisInscripciones`
+- **Materias del plan**: `/MateriasDelPlan`
+- **Mi carrera**: `/MiCarrera`
+- **Historia académica**: `/HistoriaAcademica`
+- **Actas**: `/GestionActas`, `/AbrirActa`, `/VerActa/:numeroCorrelativo`
+
+## Cómo agregar páginas nuevas
+
+### 1. Crear el componente de página
+Crear archivo en [src/pages/](src/pages/) (ej: `NuevaPaginaPage.jsx`)
+
+### 2. Agregar endpoints de API (si es necesario)
+Crear o modificar archivo en [src/api/](src/api/) con los endpoints correspondientes
+
+### 3. Registrar la ruta
+En [src/App.js](src/App.js):
+- Importar el componente
+- Agregar `<Route path="/NuevaPagina" element={<NuevaPaginaPage />} />`
+
+### 4. Configurar permisos por rol (si corresponde)
+En [src/utils/roleUtils.js](src/utils/roleUtils.js):
+- Agregar la ruta al array de rutas permitidas del rol correspondiente en `routePermissions`
+
+### 5. Agregar enlace en navegación (opcional)
+Si la página debe aparecer en el menú, agregar el enlace en el componente de navegación correspondiente
