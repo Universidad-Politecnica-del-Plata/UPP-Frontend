@@ -58,8 +58,9 @@ const NuevoAlumnoForm = () => {
         formData.codigosCarreras.includes(plan.codigoCarrera)
       );
       setPlanesDeEstudioFiltrados(planesFiltrados);
-      
-      // Resetear selección de planes que ya no son válidos
+
+      //Actualizar planes de estudio seleccionados para que solo queden los que son válidos
+      //según las carreras seleccionadas
       const planesValidosIds = planesFiltrados.map(plan => plan.codigoDePlanDeEstudios);
       const planesSeleccionadosValidos = formData.codigosPlanesDeEstudio.filter(planId => 
         planesValidosIds.includes(planId)

@@ -1,4 +1,4 @@
-// Definición de permisos por rol para cada página
+// Permisos por rol
 export const ROLE_PERMISSIONS = {
   '/GestionMaterias': ['ROLE_GESTION_ACADEMICA'],
   '/CrearMateria': ['ROLE_GESTION_ACADEMICA'],
@@ -29,24 +29,19 @@ export const ROLE_PERMISSIONS = {
   '/home': ['ROLE_ALUMNO', 'ROLE_DOCENTE', 'ROLE_GESTION_ACADEMICA', 'ROLE_GESTION_ESTUDIANTIL', 'ROLE_GESTOR_DE_PLANIFICACION'],
 };
 
-// Rutas públicas que no requieren autenticación
+// Rutas sin requisito de autenticacion
 export const PUBLIC_ROUTES = ['/login', '/'];
 
-// Verificar si un usuario tiene permisos para acceder a una ruta
 export const canAccessRoute = (userRoles, route) => {
-  // Si es una ruta pública, permitir acceso
   if (PUBLIC_ROUTES.includes(route)) {
     return true;
   }
 
-  // Primero intentar una coincidencia exacta
   let requiredRoles = ROLE_PERMISSIONS[route];
-  
-  // Si no hay coincidencia exacta, buscar coincidencia por patrón
+
+  // Si no hay match exacto, busco por patron (ej: /EditarCarrera/123)
   if (!requiredRoles) {
     for (const [routePattern, roles] of Object.entries(ROLE_PERMISSIONS)) {
-      // Verificar si la ruta actual coincide con el patrón base
-      // Ej: /EditarCarrera/123 coincide con /EditarCarrera
       if (route.startsWith(routePattern + '/') || route === routePattern) {
         requiredRoles = roles;
         break;
@@ -54,20 +49,17 @@ export const canAccessRoute = (userRoles, route) => {
     }
   }
 
-  // Si no hay roles definidos para la ruta, denegar acceso por defecto
   if (!requiredRoles) {
     return false;
   }
 
-  // Verificar si el usuario tiene al menos uno de los roles requeridos
   return userRoles && requiredRoles.some(role => userRoles.includes(role));
 };
 
-// Obtener las rutas disponibles para un usuario según sus roles
 export const getAvailableRoutes = (userRoles) => {
   if (!userRoles) return PUBLIC_ROUTES;
 
-  const availableRoutes = PUBLIC_ROUTES.slice(); // Copiar rutas públicas
+  const availableRoutes = PUBLIC_ROUTES.slice();
 
   Object.entries(ROLE_PERMISSIONS).forEach(([route, requiredRoles]) => {
     if (requiredRoles.some(role => userRoles.includes(role))) {

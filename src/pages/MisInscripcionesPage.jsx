@@ -59,7 +59,7 @@ export default function MisInscripcionesPage() {
         const response = await getMisInscripciones();
         setInscripciones(response.data);
 
-        // Cargar información de cursos y materias
+        // Cargar datos de cursos y materias
         const cursosMap = {};
         const materiasMap = {};
 

@@ -106,7 +106,6 @@ export default function ActasPage() {
 
       setConfirmClose(null);
 
-      
       setActas(prevActas =>
         prevActas.map(acta =>
           acta.numeroCorrelativo === numeroCorrelativo
@@ -124,7 +123,6 @@ export default function ActasPage() {
     }
   };
 
-  
   const formatFecha = (fechaString) => {
     if (!fechaString) return '-';
     const fecha = new Date(fechaString);
@@ -253,7 +251,6 @@ export default function ActasPage() {
             </thead>
             <tbody>
               {currentActas.map(acta => {
-                // Determinar estilo del tipo de acta
                 const getTipoActaStyle = (tipo) => {
                   switch(tipo) {
                     case 'FINAL':

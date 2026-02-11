@@ -18,7 +18,7 @@ const LoginPage = () => {
   const { notification, showNotification, closeNotification } = useNotification();
   const [loading, setLoading] = useState(false);
 
-  // Redirigir si ya está autenticado
+  // Redirigir a home si ya está autenticado
   React.useEffect(() => {
     if (isAuthenticated) {
       navigate('/home');

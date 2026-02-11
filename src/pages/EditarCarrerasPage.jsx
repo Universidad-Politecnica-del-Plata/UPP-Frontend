@@ -28,7 +28,6 @@ const EditCarreraForm = () => {
     const fetchPlanesDeEstudio = async () => {
       try {
         const response = await getTodosPlanesDeEstudio();
-        // Filtrar planes sin carrera asignada o de la carrera actual
         const planesValidos = response.data.filter(
           plan => !plan.codigoCarrera || 
                   plan.codigoCarrera === '' || 

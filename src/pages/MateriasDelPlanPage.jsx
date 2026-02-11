@@ -146,7 +146,6 @@ export default function MateriasDelPlanPage() {
           onClose={closeNotification}
         />
 
-        {/* Filtros */}
         <div style={inscripcionStyles.filtersRow}>
           <div style={inscripcionStyles.filterGroup}>
             <label style={inscripcionStyles.filterLabel}>Tipo</label>
@@ -173,7 +172,6 @@ export default function MateriasDelPlanPage() {
           </div>
         </div>
 
-        {/* Lista de materias agrupadas por cuatrimestre */}
         {loadingMaterias ? (
           <div style={inscripcionStyles.loadingContainer}>
             Cargando materias...

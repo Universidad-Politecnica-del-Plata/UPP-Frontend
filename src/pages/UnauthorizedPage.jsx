@@ -6,7 +6,6 @@ const UnauthorizedPage = () => {
   const { user } = useAuth();
 
   const handleGoBack = () => {
-    // Intentar volver a la página anterior, o ir a una página por defecto
     navigate(-1);
   };
 

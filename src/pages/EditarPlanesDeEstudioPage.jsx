@@ -28,7 +28,6 @@ const EditPlanDeEstudiosForm = () => {
     const fetchMaterias = async () => {
       try {
         const response = await getTodasMaterias();
-        // Filtrar materias sin plan asignado o del plan actual
         const materiasValidas = response.data.filter(
           materia => !materia.codigoPlanDeEstudios || 
                     materia.codigoPlanDeEstudios === '' || 
