@@ -75,7 +75,6 @@ const homeStyles = {
   },
 };
 
-// Definir menuItems por rol
 const getMenuItemsByRole = (roles) => {
   const menuItemsByRole = {
     ROLE_ALUMNO: [
@@ -181,7 +180,6 @@ const getMenuItemsByRole = (roles) => {
     ],
   };
 
-  // Obtener el primer rol del usuario y retornar sus menuItems
   const userRole = roles?.find(role => menuItemsByRole[role]);
   return menuItemsByRole[userRole] || [];
 };
@@ -252,7 +250,6 @@ export default function HomePage() {
     );
   }
 
-  // Determinar el nombre de usuario según el rol
   const getUserName = () => {
     if (isAlumno && alumno) {
       return alumno.nombre;
@@ -260,7 +257,6 @@ export default function HomePage() {
     return user?.username || '';
   };
 
-  // Determinar el subtítulo según el rol
   const getSubtitle = () => {
     if (isAlumno) {
       return 'Accedé a todas las herramientas para gestionar tu vida académica';

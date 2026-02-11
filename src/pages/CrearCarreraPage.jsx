@@ -26,7 +26,6 @@ const NuevaCarreraForm = () => {
     const fetchPlanesDeEstudio = async () => {
       try {
         const response = await getTodosPlanesDeEstudio();
-        // Filtrar planes de estudio sin carrera asignada
         const planesSinCarrera = response.data.filter(
           plan => !plan.codigoCarrera || plan.codigoCarrera === '' || plan.codigoCarrera === null
         );

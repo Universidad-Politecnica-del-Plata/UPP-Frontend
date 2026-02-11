@@ -114,10 +114,10 @@ export default function MiCarreraPage() {
           return;
         }
 
-        // Seleccionar la primera carrera por defecto
+        // Elegir la primera carrera disponible
         setCarreraSeleccionada(alumnoResponse.data.codigosCarreras[0]);
 
-        // Seleccionar el primer plan por defecto
+        // Elegir el primer plan disponible
         if (alumnoResponse.data.codigosPlanesDeEstudio && alumnoResponse.data.codigosPlanesDeEstudio.length > 0) {
           setPlanSeleccionado(alumnoResponse.data.codigosPlanesDeEstudio[0]);
         }

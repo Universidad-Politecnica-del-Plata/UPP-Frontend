@@ -66,7 +66,6 @@ const AbrirActaPage = () => {
       console.log('Response:', response.data);
       showNotification('success', 'Acta creada exitosamente');
 
-      // Redirigir después de un breve delay
       setTimeout(() => {
         navigate('/GestionActas');
       }, 1500);

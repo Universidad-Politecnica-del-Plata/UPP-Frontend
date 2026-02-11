@@ -1,5 +1,5 @@
 export const getErrorMessage = (error, defaultMessage = 'Ocurrio un error') => {
-  // Para errores de autenticación, mantener mensajes específicos
+  // Errores de autenticacion
   if (error.response?.status === 401) {
     const currentPath = window.location.pathname;
     if (currentPath === '/login' || currentPath === '/') {
@@ -12,18 +12,15 @@ export const getErrorMessage = (error, defaultMessage = 'Ocurrio un error') => {
     return 'No tiene permisos para acceder a esta información.';
   }
 
-  // Intentar extraer mensaje del backend (formato: { error: "mensaje" })
   const backendMessage = error.response?.data?.error;
   if (backendMessage) {
     return backendMessage;
   }
 
-  // Fallback para otros formatos de mensaje del backend
   const altMessage = error.response?.data?.message;
   if (altMessage) {
     return altMessage;
   }
 
-  // Fallback final
   return defaultMessage;
 };

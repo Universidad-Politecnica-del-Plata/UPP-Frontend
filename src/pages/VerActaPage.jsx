@@ -28,17 +28,14 @@ const VerActaPage = () => {
           return;
         }
 
-        // Cargar acta
         const actaResponse = await getActa(numeroCorrelativo);
         setActa(actaResponse.data);
 
-        // Cargar alumnos inscriptos y notas del acta
         const [alumnosResponse, notasResponse] = await Promise.all([
           getAlumnosInscriptos(numeroCorrelativo),
           getNotasPorActa(numeroCorrelativo)
         ]);
 
-        // Fusionar alumnos inscriptos con notas existentes
         const alumnosConNotas = alumnosResponse.data.map(alumno => {
           const notaExistente = notasResponse.data.find(nota => nota.alumnoId === alumno.id);
           return {
@@ -74,7 +71,6 @@ const VerActaPage = () => {
 
   const handleGuardarCambios = async () => {
     try {
-      // Filtrar solo las notas con valor cargado (entre 1 y 10)
       const notasConValor = notas.filter(nota => {
         const valor = parseInt(nota.valor);
         return !isNaN(valor) && valor >= 1 && valor <= 10;
@@ -85,7 +81,6 @@ const VerActaPage = () => {
         return;
       }
 
-      // Preparar el request según el DTO NotasMasivasRequestDTO
       const requestData = {
         notas: notasConValor.map(nota => ({
           valor: parseInt(nota.valor),
@@ -97,7 +92,6 @@ const VerActaPage = () => {
 
       showNotification('success', 'Notas guardadas exitosamente');
 
-      // Recargar datos
       const [alumnosResponse, notasResponse] = await Promise.all([
         getAlumnosInscriptos(numeroCorrelativo),
         getNotasPorActa(numeroCorrelativo)
@@ -128,7 +122,6 @@ const VerActaPage = () => {
       await actualizarEstadoActa(numeroCorrelativo, { estado: 'CERRADA' });
       showNotification('success', 'Acta cerrada exitosamente');
 
-      // Actualizar estado local
       setActa(prev => ({ ...prev, estado: 'CERRADA' }));
     } catch (error) {
       console.error('Error closing acta:', error);
@@ -143,12 +136,10 @@ const VerActaPage = () => {
     const nota = parseInt(valor);
     if (isNaN(nota)) return '-';
 
-    // Para actas de final/promoción
     if (acta?.tipoDeActa === 'FINAL' || acta?.tipoDeActa === 'CURSADA') {
       return nota >= 4 ? 'Aprobado' : 'Desaprobado';
     }
 
-    // Para cursada
     if (acta?.tipoDeActa === 'CURSADA') {
       return nota >= 4 ? 'Aprobado' : 'Desaprobado';
     }

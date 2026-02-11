@@ -104,8 +104,7 @@ const EditarAlumnoForm = () => {
         formData.codigosCarreras.includes(plan.codigoCarrera)
       );
       setPlanesDeEstudioFiltrados(planesFiltrados);
-      
-      // Resetear selección de planes que ya no son válidos
+
       const planesValidosIds = planesFiltrados.map(plan => plan.codigoDePlanDeEstudios);
       const planesSeleccionadosValidos = formData.codigosPlanesDeEstudio.filter(planId => 
         planesValidosIds.includes(planId)

@@ -48,7 +48,7 @@ export default function InscripcionCursosPage() {
         const response = await getAlumnoActual();
         setAlumno(response.data);
 
-        // Seleccionar el primer plan de estudios por defecto
+        // Elegir el primer plan como predeterminado
         if (response.data.codigosPlanesDeEstudio && response.data.codigosPlanesDeEstudio.length > 0) {
           setPlanSeleccionado(response.data.codigosPlanesDeEstudio[0]);
         }
@@ -69,7 +69,7 @@ export default function InscripcionCursosPage() {
     fetchAlumno();
   }, []);
 
-  // Cargar cursos cuando se selecciona un plan de estudios
+  // Cargar cursos al cambiar el plan de estudios
   useEffect(() => {
     const fetchCursos = async () => {
       if (!planSeleccionado) return;
@@ -79,7 +79,7 @@ export default function InscripcionCursosPage() {
         const response = await getCursosPorPlanDeEstudios(planSeleccionado);
         setCursos(response.data);
 
-        // Cargar información de las materias de cada curso
+        // Traer datos de las materias de cada curso
         const materiasMap = {};
         for (const curso of response.data) {
           try {
@@ -87,7 +87,7 @@ export default function InscripcionCursosPage() {
             materiasMap[curso.codigoMateria] = materiaResponse.data;
           } catch (err) {
             console.error(`Error al cargar materia ${curso.codigoMateria}:`, err);
-            // Si falla, guardamos datos básicos
+            // Si falla, guardamos datos minimos
             materiasMap[curso.codigoMateria] = {
               codigo: curso.codigoMateria,
               nombre: curso.codigoMateria,
@@ -109,18 +109,14 @@ export default function InscripcionCursosPage() {
     fetchCursos();
   }, [planSeleccionado]);
 
-
-  // Filtrar cursos
   const filteredCursos = cursos.filter(curso => {
     const materia = materias[curso.codigoMateria] || {};
 
-    // Filtro por búsqueda
     const matchesBusqueda = busqueda === '' ||
       materia.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
       curso.codigoMateria.toLowerCase().includes(busqueda.toLowerCase()) ||
       curso.codigo.toLowerCase().includes(busqueda.toLowerCase());
 
-    // Filtro por tipo (obligatoria/optativa)
     const matchesTipo = filtroTipo === 'todas' ||
       (filtroTipo === 'obligatorias' && materia.tipo === 'OBLIGATORIA') ||
       (filtroTipo === 'optativas' && materia.tipo === 'OPTATIVA');
@@ -128,7 +124,6 @@ export default function InscripcionCursosPage() {
     return matchesBusqueda && matchesTipo;
   });
 
-  // Paginación
   const indexOfLastCurso = currentPage * cursosPerPage;
   const indexOfFirstCurso = indexOfLastCurso - cursosPerPage;
   const currentCursos = filteredCursos.slice(indexOfFirstCurso, indexOfLastCurso);
@@ -136,10 +131,8 @@ export default function InscripcionCursosPage() {
 
   const handleInscribirse = async (codigoCurso) => {
     try {
-      // Llamar al endpoint de inscripción
       const response = await crearInscripcion({ codigoCurso });
 
-      // Mostrar modal con los datos de la inscripción
       setModalData(response.data);
       setShowModal(true);
     } catch (err) {
@@ -181,7 +174,6 @@ export default function InscripcionCursosPage() {
           onClose={closeNotification}
         />
 
-      {/* Filtros */}
       <div style={inscripcionStyles.filtersRow}>
         <div style={inscripcionStyles.filterGroup}>
           <label style={inscripcionStyles.filterLabel}>Modalidad</label>
@@ -222,7 +214,6 @@ export default function InscripcionCursosPage() {
         </div>
       </div>
 
-      {/* Lista de cursos */}
       {loadingMaterias ? (
         <div style={inscripcionStyles.loadingContainer}>
           Cargando cursos...
@@ -244,8 +235,10 @@ export default function InscripcionCursosPage() {
                     <h2 style={inscripcionStyles.cursoTitle}>
                       [{curso.codigoMateria}] {materia.nombre || curso.codigoMateria}
                     </h2>
+                    {/* Se deberia mostrar el código del curso y "Prof.",
+                     pero no tenemos datos de profesor por ahora (implementacion pendiente) */}
                     <p style={inscripcionStyles.cursoSubtitle}>
-                      Curso: {curso.codigo} - Prof. {/* Profesor vacío por ahora */}
+                      Curso: {curso.codigo} - Prof.
                     </p>
                   </div>
                   <div style={inscripcionStyles.cursoRightSection}>
@@ -267,13 +260,13 @@ export default function InscripcionCursosPage() {
 
                 <div style={inscripcionStyles.cursoDetails}>
                   <div style={inscripcionStyles.cursoDetailRow}>
-                    <strong>Horario:</strong> {/* Horario vacío */}
+                    <strong>Horario:</strong>
                   </div>
                   <div style={inscripcionStyles.cursoDetailRow}>
-                    <strong>Modalidad:</strong> {/* Modalidad vacía */}
+                    <strong>Modalidad:</strong>
                   </div>
                   <div style={inscripcionStyles.cursoDetailRow}>
-                    <strong>Aula:</strong> {/* Aula vacía */}
+                    <strong>Aula:</strong>
                   </div>
                   {materia.correlativas && materia.correlativas.length > 0 && (
                     <div style={inscripcionStyles.correlativasText}>
@@ -292,7 +285,6 @@ export default function InscripcionCursosPage() {
             );
           })}
 
-          {/* Paginación */}
           {totalPages > 1 && (
             <div style={inscripcionStyles.paginationContainer}>
               <button

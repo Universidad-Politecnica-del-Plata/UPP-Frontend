@@ -26,7 +26,6 @@ const NuevoPlanDeEstudiosForm = () => {
     const fetchMaterias = async () => {
       try {
         const response = await getTodasMaterias();
-        // Filtrar materias sin plan asignado o del plan actual
         const materiasSinPlan = response.data.filter(
           materia => !materia.codigoPlanDeEstudios || materia.codigoPlanDeEstudios === ''
         );
@@ -71,7 +70,6 @@ const NuevoPlanDeEstudiosForm = () => {
 
   const handleSubmit = async () => {
     try {
-      // Convert string values to appropriate types
       const submitData = {
         ...formData,
         creditosElectivos: parseInt(formData.creditosElectivos) || 0
