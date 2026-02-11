@@ -54,8 +54,7 @@ src/
 
 ### Configuración base (`src/api/api.js`)
 
-Instancia de Axios con:
-- Base URL desde `REACT_APP_API_ENDPOINT`
+- URL base `REACT_APP_API_ENDPOINT`
 - Interceptor automático que agrega JWT Bearer token en cada request
 - Token de autenticacion almacenado en `localStorage` en la clave `authToken`
 
@@ -75,15 +74,10 @@ Instancia de Axios con:
 
 El sistema usa JWT almacenado en localStorage. El token se agrega automáticamente a todas las requests mediante un interceptor de Axios.
 
-```javascript
-// Ejemplo de uso desde el navegador
-localStorage.getItem('authToken') // Ver token actual
-```
-
 ## Arquitectura de estilos
 
 - **Tailwind**: Utilidades para layout y componentes base
-- **Style objects**: Estilos específicos de componentes en `src/styles/`
+- Estilos de componentes en `src/styles/`
 
 ## Sistema de notificaciones
 
@@ -103,7 +97,7 @@ El frontend se adapta según el rol del usuario autenticado:
 
 ## Rutas principales
 
-(Rutas protegidas por rol [src/utils/roleUtils.js](src/utils/roleUtils.js)):
+Rutas protegidas por rol [src/utils/roleUtils.js](src/utils/roleUtils.js):
 
 - **Login y acceso base**: `/login`, `/home`
 - **Materias**: `/GestionMaterias`, `/CrearMateria`, `/EditarMateria/:codigoDeMateria`
@@ -134,6 +128,3 @@ En [src/App.js](src/App.js):
 ### 4. Configurar permisos por rol (si corresponde)
 En [src/utils/roleUtils.js](src/utils/roleUtils.js):
 - Agregar la ruta al array de rutas permitidas del rol correspondiente en `routePermissions`
-
-### 5. Agregar enlace en navegación (opcional)
-Si la página debe aparecer en el menú, agregar el enlace en el componente de navegación correspondiente
