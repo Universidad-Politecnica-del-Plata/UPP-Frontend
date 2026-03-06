@@ -5,6 +5,7 @@ import { styles } from '../styles/upp-style';
 import Notification from '../components/Notification';
 import Header from '../components/Header';
 import { useNotification } from '../hooks/useNotification';
+import { usePlanDeEstudios } from '../contexts/PlanDeEstudiosContext';
 import { getAlumnoActual } from '../api/alumnosApi';
 import { getTodasMaterias } from '../api/materiasApi';
 import { getErrorMessage } from '../utils/errorHandler';
@@ -15,8 +16,8 @@ export default function MateriasDelPlanPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMaterias, setLoadingMaterias] = useState(false);
   const { notification, showNotification, closeNotification } = useNotification();
+  const { planSeleccionado } = usePlanDeEstudios();
 
-  const [planSeleccionado, setPlanSeleccionado] = useState('');
   const [filtroTipo, setFiltroTipo] = useState('todas');
   const [busqueda, setBusqueda] = useState('');
 
@@ -38,10 +39,6 @@ export default function MateriasDelPlanPage() {
 
         const response = await getAlumnoActual();
         setAlumno(response.data);
-
-        if (response.data.codigosPlanesDeEstudio && response.data.codigosPlanesDeEstudio.length > 0) {
-          setPlanSeleccionado(response.data.codigosPlanesDeEstudio[0]);
-        }
       } catch (err) {
         console.error('Error al cargar datos del alumno:', err);
         const errorMessage = getErrorMessage(err, 'Error al cargar los datos del alumno.');
@@ -135,8 +132,6 @@ export default function MateriasDelPlanPage() {
       <Header
         title="Materias del Plan"
         showPlanSelector={true}
-        planSeleccionado={planSeleccionado}
-        setPlanSeleccionado={setPlanSeleccionado}
       />
       <div style={styles.container}>
         <Notification

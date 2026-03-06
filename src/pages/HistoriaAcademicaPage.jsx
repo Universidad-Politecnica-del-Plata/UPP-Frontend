@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
+import { usePlanDeEstudios } from '../contexts/PlanDeEstudiosContext';
 import { getMiHistoriaAcademica, getAlumnoActual } from '../api/alumnosApi';
 import { getPlanDeEstudios } from '../api/planDeEstudiosApi';
 import { getErrorMessage } from '../utils/errorHandler';
@@ -118,7 +119,7 @@ export default function HistoriaAcademicaPage() {
   const [historia, setHistoria] = useState(null);
   const [planInfo, setPlanInfo] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [planSeleccionado, setPlanSeleccionado] = useState('');
+  const { planSeleccionado } = usePlanDeEstudios();
   const { notification, showNotification, closeNotification } = useNotification();
   const navigate = useNavigate();
 
@@ -126,11 +127,6 @@ export default function HistoriaAcademicaPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        const alumnoResponse = await getAlumnoActual();
-        if (alumnoResponse.data.codigosPlanesDeEstudio && alumnoResponse.data.codigosPlanesDeEstudio.length > 0) {
-          setPlanSeleccionado(alumnoResponse.data.codigosPlanesDeEstudio[0]);
-        }
 
         const historiaResponse = await getMiHistoriaAcademica();
         setHistoria(historiaResponse.data);
@@ -200,8 +196,6 @@ export default function HistoriaAcademicaPage() {
         <Header
           title="Historia Académica"
           showPlanSelector={true}
-          planSeleccionado={planSeleccionado}
-          setPlanSeleccionado={setPlanSeleccionado}
         />
         <div style={pageStyles.loadingContainer}>Cargando...</div>
       </div>
@@ -220,8 +214,6 @@ export default function HistoriaAcademicaPage() {
       <Header
         title="Historia Académica"
         showPlanSelector={true}
-        planSeleccionado={planSeleccionado}
-        setPlanSeleccionado={setPlanSeleccionado}
       />
 
       <div style={pageStyles.contentContainer}>

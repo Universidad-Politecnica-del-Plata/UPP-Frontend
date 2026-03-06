@@ -1,6 +1,7 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import { PlanDeEstudiosProvider } from "./contexts/PlanDeEstudiosContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import LoginPage from "./pages/LoginPage.jsx";
@@ -36,8 +37,9 @@ import HistoriaAcademicaPage from "./pages/HistoriaAcademicaPage.jsx";
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
+      <PlanDeEstudiosProvider>
+        <BrowserRouter>
+          <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
 
           <Route path="/login" element={<LoginPage />} />
@@ -205,8 +207,9 @@ function App() {
               <VerActaPage />
             </ProtectedRoute>
           } />
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </PlanDeEstudiosProvider>
     </AuthProvider>
   );
 }

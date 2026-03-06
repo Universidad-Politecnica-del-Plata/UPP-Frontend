@@ -6,6 +6,7 @@ import { confirmationModalStyles } from '../styles/confirm-modal-styles';
 import Notification from '../components/Notification';
 import Header from '../components/Header';
 import { useNotification } from '../hooks/useNotification';
+import { usePlanDeEstudios } from '../contexts/PlanDeEstudiosContext';
 import { getAlumnoActual } from '../api/alumnosApi';
 import { getCursosPorPlanDeEstudios } from '../api/cursosApi';
 import { getMateria } from '../api/materiasApi';
@@ -19,8 +20,8 @@ export default function InscripcionCursosPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMaterias, setLoadingMaterias] = useState(false);
   const { notification, showNotification, closeNotification } = useNotification();
+  const { planSeleccionado } = usePlanDeEstudios();
 
-  const [planSeleccionado, setPlanSeleccionado] = useState('');
   const [filtroModalidad, setFiltroModalidad] = useState('todas');
   const [filtroTipo, setFiltroTipo] = useState('todas');
   const [busqueda, setBusqueda] = useState('');
@@ -47,11 +48,6 @@ export default function InscripcionCursosPage() {
 
         const response = await getAlumnoActual();
         setAlumno(response.data);
-
-        // Elegir el primer plan como predeterminado
-        if (response.data.codigosPlanesDeEstudio && response.data.codigosPlanesDeEstudio.length > 0) {
-          setPlanSeleccionado(response.data.codigosPlanesDeEstudio[0]);
-        }
       } catch (err) {
         console.error('Error al cargar datos del alumno:', err);
         const errorMessage = getErrorMessage(err, 'Error al cargar los datos del alumno.');
@@ -163,8 +159,6 @@ export default function InscripcionCursosPage() {
       <Header
         title="Inscripción a Cursos"
         showPlanSelector={true}
-        planSeleccionado={planSeleccionado}
-        setPlanSeleccionado={setPlanSeleccionado}
       />
       <div style={styles.container}>
         <Notification

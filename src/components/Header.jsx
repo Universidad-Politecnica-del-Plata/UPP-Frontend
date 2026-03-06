@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { usePlanDeEstudios } from '../contexts/PlanDeEstudiosContext';
 import { getAlumnoActual } from '../api/alumnosApi';
 
 const headerStyles = {
@@ -88,10 +89,11 @@ const headerStyles = {
   },
 };
 
-export default function Header({ title, planSeleccionado, setPlanSeleccionado, showPlanSelector = false }) {
+export default function Header({ title, showPlanSelector = false }) {
   const [user, setUser] = useState(null);
   const [alumno, setAlumno] = useState(null);
   const { logout, user: authUser } = useAuth();
+  const { planSeleccionado, setPlanSeleccionado } = usePlanDeEstudios();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -106,6 +108,11 @@ export default function Header({ title, planSeleccionado, setPlanSeleccionado, s
             apellido: response.data.apellido,
             rol: 'Estudiante',
           });
+
+          // Si no hay plan seleccionado y el alumno tiene planes, seleccionar el primero
+          if (!planSeleccionado && response.data.codigosPlanesDeEstudio && response.data.codigosPlanesDeEstudio.length > 0) {
+            setPlanSeleccionado(response.data.codigosPlanesDeEstudio[0]);
+          }
         } catch (err) {
           console.error('Error al cargar datos del usuario:', err);
           setUser({
@@ -125,7 +132,7 @@ export default function Header({ title, planSeleccionado, setPlanSeleccionado, s
     if (authUser) {
       fetchUser();
     }
-  }, [authUser]);
+  }, [authUser, planSeleccionado, setPlanSeleccionado]);
 
   const getRoleName = (roles) => {
     if (!roles || roles.length === 0) return 'Usuario';
