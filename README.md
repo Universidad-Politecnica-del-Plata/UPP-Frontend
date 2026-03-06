@@ -74,7 +74,7 @@ src/
 
 El sistema usa JWT almacenado en localStorage. El token se agrega automáticamente a todas las requests mediante un interceptor de Axios.
 
-## Arquitectura de estilos
+## Estilos
 
 - **Tailwind**: Utilidades para layout y componentes base
 - Estilos de componentes en `src/styles/`
