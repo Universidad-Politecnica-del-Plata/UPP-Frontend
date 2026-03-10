@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Notification from '../components/Notification';
 import { useNotification } from '../hooks/useNotification';
+import { usePlanDeEstudios } from '../contexts/PlanDeEstudiosContext';
 import { getAlumnoActual } from '../api/alumnosApi';
 import { getCarrera } from '../api/carrerasApi';
 import { getErrorMessage } from '../utils/errorHandler';
@@ -97,7 +98,7 @@ export default function MiCarreraPage() {
   const [carrera, setCarrera] = useState(null);
   const [loading, setLoading] = useState(true);
   const [carreraSeleccionada, setCarreraSeleccionada] = useState('');
-  const [planSeleccionado, setPlanSeleccionado] = useState('');
+  const { planSeleccionado, setPlanSeleccionado } = usePlanDeEstudios();
   const { notification, showNotification, closeNotification } = useNotification();
   const navigate = useNavigate();
 
@@ -116,11 +117,6 @@ export default function MiCarreraPage() {
 
         // Elegir la primera carrera disponible
         setCarreraSeleccionada(alumnoResponse.data.codigosCarreras[0]);
-
-        // Elegir el primer plan disponible
-        if (alumnoResponse.data.codigosPlanesDeEstudio && alumnoResponse.data.codigosPlanesDeEstudio.length > 0) {
-          setPlanSeleccionado(alumnoResponse.data.codigosPlanesDeEstudio[0]);
-        }
       } catch (err) {
         console.error('Error al cargar datos del alumno:', err);
         const errorMessage = getErrorMessage(err, 'Error al cargar los datos del alumno.');
@@ -165,8 +161,6 @@ export default function MiCarreraPage() {
         <Header
           title="Mi Carrera"
           showPlanSelector={true}
-          planSeleccionado={planSeleccionado}
-          setPlanSeleccionado={setPlanSeleccionado}
         />
         <div style={pageStyles.loadingContainer}>Cargando...</div>
       </div>
@@ -185,8 +179,6 @@ export default function MiCarreraPage() {
       <Header
         title="Mi Carrera"
         showPlanSelector={true}
-        planSeleccionado={planSeleccionado}
-        setPlanSeleccionado={setPlanSeleccionado}
       />
 
       <div style={pageStyles.contentContainer}>
